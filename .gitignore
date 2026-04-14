@@ -92,3 +92,9 @@ openspec/*-override.yaml
 
 # Ignore .github directory (user requested)
 /.github/
+
+# Ignore everything in Packages except manifest.json and package-lock.json
+/Packages/**
+!/Packages/manifest.json
+!/Packages/package-lock.json
+
