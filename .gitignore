@@ -70,3 +70,25 @@ crashlytics-build.properties
 # 临时自动生成的 Android 资源
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+# Copilot / MCP user-specific configs - ignore to avoid committing local CLI configs
+.copilot/
+**/.copilot/
+mcp-config.json
+**/mcp-config.json
+*.mcp-config.json
+
+# OpenSpec local/user config (do NOT ignore openspec/config.yaml)
+# Conservative patterns to ignore local overrides and secrets
+openspec/*.local
+openspec/*.local.*
+openspec/*.secret
+openspec/*.user
+openspec/*-local.yaml
+openspec/*-override.yaml
+
+# Ignore entire openspec directory (user requested)
+/openspec/
+
+
+# Ignore .github directory (user requested)
+/.github/
