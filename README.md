@@ -375,10 +375,10 @@ GameState current = GameManager.Instance.CurrentState;
 | 当前状态 | 可迁移至 |
 |---------|---------|
 | Boot | → Hub |
-| Hub | → RunInit, RunEnd |
+| Hub | → RunInit |
 | RunInit | → RoomPlaying |
-| RoomPlaying | → RoomClear, BossPlaying |
-| RoomClear | → RewardSelect, RunEnd |
+| RoomPlaying | → RoomClear, BossPlaying, RunEnd |
+| RoomClear | → RewardSelect |
 | RewardSelect | → RoomPlaying |
 | BossPlaying | → RunEnd |
 | RunEnd | → Hub |
