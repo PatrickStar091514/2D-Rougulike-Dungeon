@@ -103,7 +103,7 @@ namespace RogueDungeon.Data.Runtime
         }
 
         /// <summary>
-        /// Run 结束时归档并删除续关存档
+        /// Run 结束时归档并删除续关存档，同时释放当前 Run 引用
         /// </summary>
         private void ArchiveRun()
         {
@@ -114,8 +114,10 @@ namespace RogueDungeon.Data.Runtime
             }
 
             // 删除续关存档（Run 已正常结束）
+            string runId = CurrentRun.RunId;
             SaveManager.DeleteSave(RunSaveKey);
-            Debug.Log($"[RunManager] Run 已归档: {CurrentRun.RunId}");
+            CurrentRun = null;
+            Debug.Log($"[RunManager] Run 已归档并释放: {runId}");
         }
 
         /// <summary>
