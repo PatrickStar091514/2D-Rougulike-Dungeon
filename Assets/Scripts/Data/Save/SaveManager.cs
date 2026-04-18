@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using UnityEngine;
 
@@ -44,8 +45,15 @@ namespace RogueDungeon.Data.Save
                 return new T();
             }
 
-            string json = File.ReadAllText(path);
-            T data = JsonUtility.FromJson<T>(json);
+            if (!TryReadJson(path, key, out string json))
+            {
+                return new T();
+            }
+
+            if (!TryDeserializeJson(json, key, out T data))
+            {
+                return new T();
+            }
 
             T expected = new T();
             if (data.SaveVersion != expected.SaveVersion)
@@ -71,8 +79,15 @@ namespace RogueDungeon.Data.Save
                 return new T();
             }
 
-            string json = File.ReadAllText(path);
-            T data = JsonUtility.FromJson<T>(json);
+            if (!TryReadJson(path, key, out string json))
+            {
+                return new T();
+            }
+
+            if (!TryDeserializeJson(json, key, out T data))
+            {
+                return new T();
+            }
 
             return data;
         }
@@ -108,6 +123,74 @@ namespace RogueDungeon.Data.Save
         private static string GetFilePath(string key)
         {
             return Path.Combine(Application.persistentDataPath, key + FileExtension);
+        }
+
+        /// <summary>
+        /// 读取存档 JSON 文本，处理读取失败和空内容降级。
+        /// </summary>
+        private static bool TryReadJson(string path, string key, out string json)
+        {
+            json = string.Empty;
+
+            try
+            {
+                json = File.ReadAllText(path);
+            }
+            catch (IOException e)
+            {
+                Debug.LogWarning($"[SaveManager] 存档读取失败: {key}，返回默认值。原因: {e.Message}");
+                return false;
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                Debug.LogWarning($"[SaveManager] 存档读取失败: {key}，返回默认值。原因: {e.Message}");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                Debug.LogWarning($"[SaveManager] 存档内容为空: {key}，返回默认值");
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 反序列化 JSON，处理格式错误和空对象降级。
+        /// </summary>
+        private static bool TryDeserializeJson<T>(string json, string key, out T data)
+        {
+            try
+            {
+                data = JsonUtility.FromJson<T>(json);
+            }
+            catch (ArgumentException e)
+            {
+                data = default;
+                Debug.LogWarning($"[SaveManager] 存档反序列化失败: {key}，返回默认值。原因: {e.Message}");
+                return false;
+            }
+            catch (InvalidOperationException e)
+            {
+                data = default;
+                Debug.LogWarning($"[SaveManager] 存档反序列化失败: {key}，返回默认值。原因: {e.Message}");
+                return false;
+            }
+            catch (NotSupportedException e)
+            {
+                data = default;
+                Debug.LogWarning($"[SaveManager] 存档反序列化失败: {key}，返回默认值。原因: {e.Message}");
+                return false;
+            }
+
+            if (typeof(T).IsClass && ReferenceEquals(data, null))
+            {
+                Debug.LogWarning($"[SaveManager] 存档反序列化结果为空: {key}，返回默认值");
+                return false;
+            }
+
+            return true;
         }
     }
 }

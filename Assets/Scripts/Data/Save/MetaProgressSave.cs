@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace RogueDungeon.Data.Save
 {
@@ -8,7 +9,8 @@ namespace RogueDungeon.Data.Save
     [System.Serializable]
     public class MetaProgressSave : ISaveData
     {
-        public int saveVersion = 1; // 存档版本号
+        [SerializeField]
+        private int saveVersion = 1; // 存档版本号（序列化字段）
 
         public List<string> UnlockedWeapons = new();          // 已解锁武器
         public int Currency;                                   // 元成长货币

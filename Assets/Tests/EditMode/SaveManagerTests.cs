@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using RogueDungeon.Data;
 using RogueDungeon.Data.Save;
 
@@ -76,6 +78,19 @@ namespace RogueDungeon.Tests
             Assert.IsNull(loaded.PlayerName);
         }
 
+        [Test]
+        public void Load_CorruptedFile_ReturnsDefault()
+        {
+            WriteRawJson(TestKey, "{ invalid json");
+
+            LogAssert.Expect(LogType.Warning, new Regex("存档反序列化失败|存档反序列化结果为空"));
+            var loaded = SaveManager.Load<TestSaveData>(TestKey);
+
+            Assert.AreEqual(0, loaded.SaveVersion);
+            Assert.AreEqual(0, loaded.Score);
+            Assert.IsNull(loaded.PlayerName);
+        }
+
         #endregion
 
         #region SaveRaw / LoadRaw
@@ -99,6 +114,18 @@ namespace RogueDungeon.Tests
         [Test]
         public void LoadRaw_FileNotExist_ReturnsDefault()
         {
+            var loaded = SaveManager.LoadRaw<TestRawData>(TestRawKey);
+
+            Assert.AreEqual(0, loaded.FloorIndex);
+            Assert.AreEqual(0, loaded.HP);
+        }
+
+        [Test]
+        public void LoadRaw_CorruptedFile_ReturnsDefault()
+        {
+            WriteRawJson(TestRawKey, "{ invalid json");
+
+            LogAssert.Expect(LogType.Warning, new Regex("存档反序列化失败|存档反序列化结果为空"));
             var loaded = SaveManager.LoadRaw<TestRawData>(TestRawKey);
 
             Assert.AreEqual(0, loaded.FloorIndex);
@@ -179,6 +206,15 @@ namespace RogueDungeon.Tests
         {
             string path = Path.Combine(Application.persistentDataPath, key + ".json");
             if (File.Exists(path)) File.Delete(path);
+        }
+
+        /// <summary>
+        /// 直接写入原始 JSON 文本，用于构造损坏存档。
+        /// </summary>
+        private static void WriteRawJson(string key, string rawJson)
+        {
+            string path = Path.Combine(Application.persistentDataPath, key + ".json");
+            File.WriteAllText(path, rawJson);
         }
 
         #endregion
