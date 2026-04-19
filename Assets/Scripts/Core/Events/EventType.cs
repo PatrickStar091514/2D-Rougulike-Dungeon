@@ -11,6 +11,9 @@ namespace RogueDungeon.Core.Events
         EnemyDamaged,       // 敌人受到伤害
         EnemyDied,          // 敌人死亡
         RoomCleared,        // 房间清空
-        RunEnded            // 本局结束
+        RunEnded,           // 本局结束
+        RunReady,           // Run 创建/恢复完成
+        DungeonGenerated,   // 地牢生成完成
+        RoomEntered         // 进入新房间
     }
 }

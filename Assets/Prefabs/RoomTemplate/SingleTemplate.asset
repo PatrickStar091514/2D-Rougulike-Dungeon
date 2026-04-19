@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db668c3215f1b0f4b82b7febc18b67b3, type: 3}
+  m_Name: SingleTemplate
+  m_EditorClassIdentifier: 
+  templateId: Single
+  shape: 0
+  allowedTypes: 000000000100000002000000
+  doorSlots:
+  - cellOffset: {x: 0, y: 0}
+    direction: 0
+  - cellOffset: {x: 0, y: 0}
+    direction: 3
+  - cellOffset: {x: 0, y: 0}
+    direction: 1
+  - cellOffset: {x: 0, y: 0}
+    direction: 2
+  prefab: {fileID: 4031204736280072788, guid: 0e29850c77aa0d540a21015036aa724a, type: 3}
+  weight: 1

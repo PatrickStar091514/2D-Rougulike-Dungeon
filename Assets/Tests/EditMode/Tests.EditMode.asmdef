@@ -4,6 +4,7 @@
     "references": [
         "Core",
         "Data",
+        "Rogue.Dungeon",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

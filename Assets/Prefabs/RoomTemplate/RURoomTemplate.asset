@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db668c3215f1b0f4b82b7febc18b67b3, type: 3}
+  m_Name: RURoomTemplate
+  m_EditorClassIdentifier: 
+  templateId: RURoom
+  shape: 6
+  allowedTypes: 0200000001000000
+  doorSlots:
+  - cellOffset: {x: 0, y: 0}
+    direction: 0
+  - cellOffset: {x: 0, y: 0}
+    direction: 3
+  - cellOffset: {x: 0, y: 0}
+    direction: 1
+  - cellOffset: {x: 1, y: 0}
+    direction: 1
+  - cellOffset: {x: 1, y: 0}
+    direction: 2
+  - cellOffset: {x: 1, y: 1}
+    direction: 2
+  - cellOffset: {x: 1, y: 1}
+    direction: 0
+  - cellOffset: {x: 1, y: 1}
+    direction: 3
+  prefab: {fileID: 2090419429871099636, guid: 9a089c756cb40b149be3615050d42109, type: 3}
+  weight: 1

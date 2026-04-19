@@ -1,0 +1,17 @@
+{
+    "name": "Rogue.Dungeon",
+    "rootNamespace": "RogueDungeon.Rogue.Dungeon",
+    "references": [
+        "Core",
+        "Data"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

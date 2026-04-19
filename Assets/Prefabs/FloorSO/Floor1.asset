@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26b4d9ac0c68ad6488cee4452e2eef72, type: 3}
+  m_Name: Floor1
+  m_EditorClassIdentifier: 
+  gridWidth: 4
+  gridHeight: 4
+  targetRoomCount: 12
+  eliteCount: 2
+  shopCount: 0
+  eventCount: 0
+  mergeRate: 0.3
+  shapeWeights:
+  - shape: 0
+    weight: 0.7
+  - shape: 3
+    weight: 0.15
+  - shape: 6
+    weight: 0.25
+  templates:
+  - {fileID: 11400000, guid: 9f8d0ea122e00d9448c8ea36d858ffeb, type: 2}
+  - {fileID: 11400000, guid: c6da551f8386259409b244a52e374963, type: 2}
+  - {fileID: 11400000, guid: 9427cefa17887094387d842042543158, type: 2}

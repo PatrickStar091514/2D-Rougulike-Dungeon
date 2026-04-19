@@ -90,6 +90,8 @@ namespace RogueDungeon.Data.Runtime
                 };
                 Debug.Log($"[RunManager] Run 已创建: {CurrentRun.RunId}, Seed: {CurrentRun.Seed}");
             }
+
+            EventCenter.Broadcast(GameEventType.RunReady, new RunReadyEvent { Run = CurrentRun });
         }
 
         /// <summary>
