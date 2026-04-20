@@ -71,6 +71,10 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
+# Screenshots 目录（用户本地截图）
+/[Aa]sset/[Ss]creenshots/
+/[Aa]ssets/[Ss]creenshots/
+
 # Copilot / MCP user-specific configs - ignore to avoid committing local CLI configs
 .copilot/
 **/.copilot/

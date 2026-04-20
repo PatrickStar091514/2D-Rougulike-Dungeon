@@ -48,13 +48,16 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
             Dictionary<string, GraphNode> nodes,
             float mergeRate,
             ShapeWeight[] shapeWeights,
-            SeededRandom rng)
+            SeededRandom rng,
+            ISet<string> protectedNodeIds = null)
         {
             var posToId = BuildPosLookup(nodes);
 
             // 获取 Normal 且未合并的候选，排序后打乱（D5 + 随机性）
             var candidates = nodes.Keys
-                .Where(id => !nodes[id].IsMerged && nodes[id].RoomType == RoomType.Normal)
+                .Where(id => !nodes[id].IsMerged
+                    && nodes[id].RoomType == RoomType.Normal
+                    && (protectedNodeIds == null || !protectedNodeIds.Contains(id)))
                 .OrderBy(id => id).ToList();
             rng.Shuffle(candidates);
 
@@ -66,7 +69,7 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
                 if (rng.Value > mergeRate)
                     continue;
 
-                TryMerge(nodes, node, shapeWeights, rng, posToId);
+                TryMerge(nodes, node, shapeWeights, rng, posToId, protectedNodeIds);
             }
         }
 
@@ -75,12 +78,13 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
             GraphNode anchor,
             ShapeWeight[] shapeWeights,
             SeededRandom rng,
-            Dictionary<Vector2Int, string> posToId)
+            Dictionary<Vector2Int, string> posToId,
+            ISet<string> protectedNodeIds)
         {
             // 收集可用合并形状
-            var validShapes = new List<RoomShape>();
-            var validWeights = new List<float>();
-            var validAbsorbLists = new List<List<string>>();
+            var validShapes = new List<RoomShape>();  // 对应的形状列表
+            var validWeights = new List<float>();    // 对应的权重列表
+            var validAbsorbLists = new List<List<string>>();  // 对应的被吸收节点 Id 列表
 
             if (shapeWeights == null) return;
 
@@ -93,7 +97,7 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
                 var extraCells = GetExtraCells(sw.shape);
                 if (extraCells == null) continue;
 
-                var absorbIds = CheckMergeValidity(anchor, extraCells, nodes, posToId);
+                var absorbIds = CheckMergeValidity(anchor, extraCells, nodes, posToId, protectedNodeIds);
                 if (absorbIds != null)
                 {
                     validShapes.Add(sw.shape);
@@ -130,7 +134,8 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
             GraphNode anchor,
             Vector2Int[] extraCells,
             Dictionary<string, GraphNode> nodes,
-            Dictionary<Vector2Int, string> posToId)
+            Dictionary<Vector2Int, string> posToId,
+            ISet<string> protectedNodeIds)
         {
             var absorbIds = new List<string>();
             foreach (var offset in extraCells)
@@ -139,6 +144,8 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
                 if (!posToId.TryGetValue(targetPos, out var targetId))
                     return null;
                 if (targetId == anchor.Id)
+                    return null;
+                if (protectedNodeIds != null && protectedNodeIds.Contains(targetId))
                     return null;
                 var targetNode = nodes[targetId];
                 if (targetNode.IsMerged || targetNode.RoomType != RoomType.Normal)

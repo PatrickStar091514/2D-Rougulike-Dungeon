@@ -26,6 +26,12 @@ namespace RogueDungeon.Rogue.Dungeon
 
         [SerializeField] private FloorConfigSO[] floorConfigs; // 按层索引的楼层配置
 
+        [Header("Runtime Debug")]
+        [SerializeField] private string _debugCurrentRoomId;  // 当前房间 ID
+        [SerializeField] private int _debugRoomCount;          // 房间总数
+        [SerializeField] private string _debugStartRoomId;     // 起始房间 ID
+        [SerializeField] private string _debugBossRoomId;      // Boss 房间 ID
+
         /// <summary>
         /// 当前地牢地图（仅在 Run 进行中有效）
         /// </summary>
@@ -72,12 +78,15 @@ namespace RogueDungeon.Rogue.Dungeon
 
         private void RegisterEvents()
         {
+            UnregisterEvents(); // 防止 sceneLoaded 导致的重复订阅
             EventCenter.AddListener<RunReadyEvent>(GameEventType.RunReady, OnRunReady);
+            EventCenter.AddListener<RoomClearedEvent>(GameEventType.RoomCleared, OnRoomCleared);
         }
 
         private void UnregisterEvents()
         {
             EventCenter.RemoveListener<RunReadyEvent>(GameEventType.RunReady, OnRunReady);
+            EventCenter.RemoveListener<RoomClearedEvent>(GameEventType.RoomCleared, OnRoomCleared);
         }
 
         /// <summary>
@@ -98,6 +107,7 @@ namespace RogueDungeon.Rogue.Dungeon
                 Debug.LogError($"[DungeonManager] 地牢生成失败: Floor={floorIndex}, Seed={floorSeed}");
                 CurrentMap = null;
                 CurrentRoom = null;
+                SyncDebugFields();
                 return;
             }
 
@@ -107,12 +117,14 @@ namespace RogueDungeon.Rogue.Dungeon
                 Debug.LogError($"[DungeonManager] 地牢生成结果无效: StartRoomId={map.StartRoomId} 不存在");
                 CurrentMap = map;
                 CurrentRoom = null;
+                SyncDebugFields();
                 return;
             }
 
             CurrentMap = map;
             CurrentRoom = startRoom;
             CurrentRoom.Visited = true;
+            SyncDebugFields();
 
             Debug.Log($"[DungeonManager] 地牢已生成: Floor={floorIndex}, Seed={floorSeed}, " +
                       $"房间数={map.AllRooms.Count}, Start={map.StartRoomId}, Boss={map.BossRoomId}");
@@ -142,9 +154,28 @@ namespace RogueDungeon.Rogue.Dungeon
 
             CurrentRoom = target;
             CurrentRoom.Visited = true;
+            _debugCurrentRoomId = roomId;
 
             Debug.Log($"[DungeonManager] 进入房间: {roomId}");
             EventCenter.Broadcast(GameEventType.RoomEntered, new RoomEnteredEvent { Room = target });
+        }
+
+        /// <summary>
+        /// 响应 RoomCleared 事件，写回运行时房间清理状态
+        /// </summary>
+        private void OnRoomCleared(RoomClearedEvent evt)
+        {
+            if (CurrentMap == null || string.IsNullOrEmpty(evt.RoomId))
+                return;
+
+            var room = CurrentMap.GetRoom(evt.RoomId);
+            if (room == null)
+            {
+                Debug.LogWarning($"[DungeonManager] RoomCleared 指向未知房间: {evt.RoomId}");
+                return;
+            }
+
+            room.Cleared = true;
         }
 
         /// <summary>
@@ -171,6 +202,7 @@ namespace RogueDungeon.Rogue.Dungeon
                 Debug.LogError($"[DungeonManager] 推进楼层失败: Floor={run.FloorIndex}, Seed={floorSeed} 地牢生成返回 null");
                 CurrentMap = null;
                 CurrentRoom = null;
+                SyncDebugFields();
                 return;
             }
 
@@ -180,12 +212,14 @@ namespace RogueDungeon.Rogue.Dungeon
                 Debug.LogError($"[DungeonManager] 推进楼层失败: StartRoomId={map.StartRoomId} 不存在");
                 CurrentMap = map;
                 CurrentRoom = null;
+                SyncDebugFields();
                 return;
             }
 
             CurrentMap = map;
             CurrentRoom = startRoom;
             CurrentRoom.Visited = true;
+            SyncDebugFields();
 
             Debug.Log($"[DungeonManager] 推进到新层: Floor={run.FloorIndex}, Seed={floorSeed}, " +
                       $"房间数={map.AllRooms.Count}");
@@ -206,6 +240,16 @@ namespace RogueDungeon.Rogue.Dungeon
 
             int idx = Mathf.Min(floorIndex, floorConfigs.Length - 1);
             return floorConfigs[idx];
+        }
+        /// <summary>
+        /// 同步 Inspector 调试字段
+        /// </summary>
+        private void SyncDebugFields()
+        {
+            _debugCurrentRoomId = CurrentRoom?.Id;
+            _debugRoomCount = CurrentMap?.AllRooms?.Count ?? 0;
+            _debugStartRoomId = CurrentMap?.StartRoomId;
+            _debugBossRoomId = CurrentMap?.BossRoomId;
         }
     }
 }
