@@ -14,11 +14,14 @@ namespace RogueDungeon.Data.Runtime
         public static RunManager Instance { get; private set; }
 
         private const string RunSaveKey = "run_checkpoint"; // 续关存档 key
+        [SerializeField] private int _randomSeed; // 可配置的随机种子，0 表示使用随机生成的种子
+
+        [SerializeField] private RunState _currentRun; // 当前 Run 状态（仅 Run 进行中有效）
 
         /// <summary>
         /// 当前 Run 状态（仅在 Run 进行中有效，Hub 阶段为 null）
         /// </summary>
-        public RunState CurrentRun { get; private set; }
+        public RunState CurrentRun => _currentRun;
 
         /// <summary>
         /// 是否存在可续关的 Run 存档
@@ -78,17 +81,19 @@ namespace RogueDungeon.Data.Runtime
         {
             if (HasCheckpoint)
             {
-                CurrentRun = SaveManager.LoadRaw<RunState>(RunSaveKey);
-                Debug.Log($"[RunManager] Run 已恢复: {CurrentRun.RunId}, Floor: {CurrentRun.FloorIndex}");
+                _currentRun = SaveManager.LoadRaw<RunState>(RunSaveKey);
+                Debug.Log($"[RunManager] Run 已恢复: {_currentRun.RunId}, Floor: {_currentRun.FloorIndex}");
             }
             else
             {
-                CurrentRun = new RunState
+                _currentRun = new RunState
                 {
                     RunId = System.Guid.NewGuid().ToString("N"),
+                    // Seed = _randomSeed != 0 ? Random.Range(int.MinValue, int.MaxValue) : _randomSeed
                     Seed = Random.Range(int.MinValue, int.MaxValue)
                 };
-                Debug.Log($"[RunManager] Run 已创建: {CurrentRun.RunId}, Seed: {CurrentRun.Seed}");
+                _randomSeed = _currentRun.Seed; // 同步随机种子到 Inspector 显示
+                Debug.Log($"[RunManager] Run 已创建: {_currentRun.RunId}, Seed: {_currentRun.Seed}");
             }
 
             EventCenter.Broadcast(GameEventType.RunReady, new RunReadyEvent { Run = CurrentRun });
@@ -99,9 +104,9 @@ namespace RogueDungeon.Data.Runtime
         /// </summary>
         private void SaveCheckpoint()
         {
-            if (CurrentRun == null) return;
-            SaveManager.SaveRaw(RunSaveKey, CurrentRun);
-            Debug.Log($"[RunManager] 存档点已保存: Floor {CurrentRun.FloorIndex}, Room {CurrentRun.RoomIndex}");
+            if (_currentRun == null) return;
+            SaveManager.SaveRaw(RunSaveKey, _currentRun);
+            Debug.Log($"[RunManager] 存档点已保存: Floor {_currentRun.FloorIndex}, Room {_currentRun.RoomIndex}");
         }
 
         /// <summary>
@@ -109,16 +114,16 @@ namespace RogueDungeon.Data.Runtime
         /// </summary>
         private void ArchiveRun()
         {
-            if (CurrentRun == null)
+            if (_currentRun == null)
             {
                 Debug.LogWarning("[RunManager] ArchiveRun 时 CurrentRun 为 null");
                 return;
             }
 
             // 删除续关存档（Run 已正常结束）
-            string runId = CurrentRun.RunId;
+            string runId = _currentRun.RunId;
             SaveManager.DeleteSave(RunSaveKey);
-            CurrentRun = null;
+            _currentRun = null;
             Debug.Log($"[RunManager] Run 已归档并释放: {runId}");
         }
 
@@ -127,7 +132,7 @@ namespace RogueDungeon.Data.Runtime
         /// </summary>
         private void ReleaseRun()
         {
-            CurrentRun = null;
+            _currentRun = null;
         }
     }
 }

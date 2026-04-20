@@ -12,10 +12,12 @@ namespace RogueDungeon.Core
     {
         public static GameManager Instance { get; private set; }
 
+        [SerializeField] private GameState _currentState = GameState.Boot; // 当前游戏状态
+
         /// <summary>
         /// 当前游戏状态（只读）
         /// </summary>
-        public GameState CurrentState { get; private set; } = GameState.Boot;
+        public GameState CurrentState => _currentState;
 
         /// <summary>
         /// 白名单状态迁移矩阵：Key 为当前状态，Value 为该状态允许迁移到的目标集合
@@ -33,14 +35,11 @@ namespace RogueDungeon.Core
         };
 
         /// <summary>
-        /// 活跃状态集合（timeScale = 1），包含需要物理更新和动画的状态
+        /// 活跃状态集合（timeScale = 1）。
+        /// 当前调试策略：所有阶段均保持时间流动。
         /// </summary>
-        private static readonly HashSet<GameState> _activeTimeStates = new()
-        {
-            GameState.Hub,
-            GameState.RoomPlaying,
-            GameState.BossPlaying
-        };
+        private static readonly HashSet<GameState> _activeTimeStates =
+            new((GameState[])System.Enum.GetValues(typeof(GameState)));
 
         private void Awake()
         {
@@ -73,8 +72,8 @@ namespace RogueDungeon.Core
                 return;
             }
 
-            GameState from = CurrentState;
-            CurrentState = newState;
+            GameState from = _currentState;
+            _currentState = newState;
 
             ApplyTimeScale(newState);
 

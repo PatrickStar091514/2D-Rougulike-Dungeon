@@ -24,5 +24,5 @@ MonoBehaviour:
     direction: 1
   - cellOffset: {x: 0, y: 0}
     direction: 2
-  prefab: {fileID: 4031204736280072788, guid: 0e29850c77aa0d540a21015036aa724a, type: 3}
+  prefab: {fileID: 248502896436144067, guid: f52ef94d2a8d19847b7e8b60460ec3a1, type: 3}
   weight: 1

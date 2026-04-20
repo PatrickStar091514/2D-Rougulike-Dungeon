@@ -27,6 +27,8 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
             foreach (var kvp in nodes)
                 posToId[kvp.Value.Position] = kvp.Key;
 
+            var bossNodeIds = BuildBossNodeIds(nodes, posToId, bossAnchorId);
+            bool bossEntryUsed = false;
             var visited = new HashSet<string>();
             var stack = new Stack<string>();
 
@@ -46,6 +48,37 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
                     .OrderBy(id => id)
                     .ToList();
 
+                // Boss 2x2 只允许一个主线路径入口：
+                // 1) 非 Boss 节点优先走非 Boss 邻居，避免提前进入 Boss 区域；
+                // 2) 进入 Boss 区域后，只在 Boss 区域内扩展，不再从 Boss 向外开分支。
+                if (bossNodeIds.Contains(currentId))
+                {
+                    unvisitedNeighbors = unvisitedNeighbors
+                        .Where(id => bossNodeIds.Contains(id))
+                        .ToList();
+                }
+                else
+                {
+                    var nonBossNeighbors = unvisitedNeighbors
+                        .Where(id => !bossNodeIds.Contains(id))
+                        .ToList();
+
+                    if (nonBossNeighbors.Count > 0)
+                    {
+                        unvisitedNeighbors = nonBossNeighbors;
+                    }
+                    else if (bossEntryUsed)
+                    {
+                        unvisitedNeighbors.Clear();
+                    }
+                    else
+                    {
+                        unvisitedNeighbors = unvisitedNeighbors
+                            .Where(id => bossNodeIds.Contains(id))
+                            .ToList();
+                    }
+                }
+
                 if (unvisitedNeighbors.Count == 0)
                 {
                     stack.Pop();
@@ -62,6 +95,8 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
                 }
 
                 var selectedId = rng.WeightedSelect(unvisitedNeighbors, weights);
+                if (!bossEntryUsed && !bossNodeIds.Contains(currentId) && bossNodeIds.Contains(selectedId))
+                    bossEntryUsed = true;
 
                 // 建立树边（双向邻居关系）
                 currentNode.NeighborIds.Add(selectedId);
@@ -145,6 +180,35 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
                     result.Add(id);
             }
             return result;
+        }
+
+        private static HashSet<string> BuildBossNodeIds(
+            Dictionary<string, GraphNode> nodes,
+            Dictionary<Vector2Int, string> posToId,
+            string bossAnchorId)
+        {
+            var bossNodeIds = new HashSet<string>();
+            if (!nodes.TryGetValue(bossAnchorId, out var bossAnchor))
+                return bossNodeIds;
+
+            var offsets = new[]
+            {
+                Vector2Int.zero,
+                Vector2Int.right,
+                Vector2Int.up,
+                Vector2Int.right + Vector2Int.up
+            };
+
+            foreach (var offset in offsets)
+            {
+                if (posToId.TryGetValue(bossAnchor.Position + offset, out var nodeId))
+                    bossNodeIds.Add(nodeId);
+            }
+
+            if (bossNodeIds.Count == 0)
+                bossNodeIds.Add(bossAnchorId);
+
+            return bossNodeIds;
         }
     }
 }

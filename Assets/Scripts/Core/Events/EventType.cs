@@ -14,6 +14,7 @@ namespace RogueDungeon.Core.Events
         RunEnded,           // 本局结束
         RunReady,           // Run 创建/恢复完成
         DungeonGenerated,   // 地牢生成完成
-        RoomEntered         // 进入新房间
+        RoomEntered,        // 进入新房间
+        DungeonReady        // 地牢视觉实例化完成
     }
 }
