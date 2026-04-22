@@ -29,17 +29,22 @@ namespace RogueDungeon.Core
             { GameState.RunInit,      new HashSet<GameState> { GameState.RoomPlaying } },
             { GameState.RoomPlaying,  new HashSet<GameState> { GameState.RoomClear, GameState.BossPlaying, GameState.RunEnd } },
             { GameState.RoomClear,    new HashSet<GameState> { GameState.RewardSelect } },
-            { GameState.RewardSelect, new HashSet<GameState> { GameState.RoomPlaying } },
-            { GameState.BossPlaying,  new HashSet<GameState> { GameState.RunEnd } },
+            { GameState.RewardSelect, new HashSet<GameState> { GameState.RoomPlaying, GameState.RunEnd } },
+            { GameState.BossPlaying,  new HashSet<GameState> { GameState.RewardSelect, GameState.RunEnd } },
             { GameState.RunEnd,       new HashSet<GameState> { GameState.Hub } },
         };
 
         /// <summary>
         /// 活跃状态集合（timeScale = 1）。
-        /// 当前调试策略：所有阶段均保持时间流动。
+        /// 非活跃阶段（Boot/RunInit/RoomClear/RewardSelect/RunEnd）暂停时间流动。
         /// </summary>
-        private static readonly HashSet<GameState> _activeTimeStates =
-            new((GameState[])System.Enum.GetValues(typeof(GameState)));
+        private static readonly HashSet<GameState> _activeTimeStates = new()
+        {
+            GameState.Hub,
+            GameState.RoomPlaying,
+            GameState.BossPlaying,
+            GameState.RewardSelect
+        };
 
         private void Awake()
         {
@@ -53,6 +58,16 @@ namespace RogueDungeon.Core
             DontDestroyOnLoad(gameObject);
 
             ApplyTimeScale(CurrentState);
+        }
+
+        private void OnEnable()
+        {
+            EventCenter.AddListener<DungeonReadyEvent>(GameEventType.DungeonReady, OnDungeonReady);
+        }
+
+        private void OnDisable()
+        {
+            EventCenter.RemoveListener<DungeonReadyEvent>(GameEventType.DungeonReady, OnDungeonReady);
         }
 
         /// <summary>
@@ -91,6 +106,15 @@ namespace RogueDungeon.Core
         private void ApplyTimeScale(GameState state)
         {
             Time.timeScale = _activeTimeStates.Contains(state) ? 1f : 0f;
+        }
+
+        /// <summary>
+        /// 地牢就绪后自动从 RunInit 进入 RoomPlaying，开启游戏内时间流动。
+        /// </summary>
+        private void OnDungeonReady(DungeonReadyEvent evt)
+        {
+            if (CurrentState != GameState.RunInit) return;
+            ChangeState(GameState.RoomPlaying);
         }
     }
 }

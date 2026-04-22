@@ -106,8 +106,6 @@ namespace RogueDungeon.Debugging
             }
 
             spriteRenderer.color = debugColor;
-            spriteRenderer.sortingLayerName = "Door";
-            spriteRenderer.sortingOrder = 1000;
             transform.localScale = new Vector3(0.8f, 0.8f, 1f);
         }
     }

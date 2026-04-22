@@ -2,209 +2,129 @@
 
 Unity 2D Roguelike 地牢项目（Unity **2022.3.62f3c1**）。
 
-本项目以 **Core / Data / Rogue.Dungeon** 三层脚本架构为基础，围绕事件驱动流程实现：
+本 README 按当前代码的模块划分，重写为“项目结构导向”版本。
 
-- 全局状态机与事件中心
-- Run 生命周期与持久化
-- 可复现（Seeded）地牢生成
-- 房间视图实例化与迷雾可见性
-- 门交互转场、相机平滑切换、房间行为编排
+## 目录（TOC）
 
-## 目录
-
-- [项目结构](#项目结构)
-- [架构概览](#架构概览)
-- [类图](#类图)
-- [时序图](#时序图)
-- [模块依赖](#模块依赖)
-- [核心数据模型](#核心数据模型)
-- [地牢生成流水线（10 步）](#地牢生成流水线10-步)
-- [API 参考与使用说明](#api-参考与使用说明)
-  - [GameManager 状态机](#gamemanager-状态机)
-  - [EventCenter 事件中心](#eventcenter-事件中心)
-  - [RunManager 与 DungeonManager](#runmanager-与-dungeonmanager)
-  - [DungeonViewManager 与 DungeonCamera](#dungeonviewmanager-与-dungeoncamera)
-  - [DoorView、DoorTransitCoordinator、RoomBehaviorOrchestrator](#doorviewdoortransitcoordinatorroombehaviororchestrator)
+- [模块划分（Scripts）](#模块划分scripts)
+- [项目结构（简化）](#项目结构简化)
+- [关键依赖关系（asmdef）](#关键依赖关系asmdef)
+- [模块依赖图（编译期）](#模块依赖图编译期)
+- [流程图总览](#流程图总览)
+- [状态跳转图（GameState）](#状态跳转图gamestate)
+- [主时序图（Run 到 RewardClaimed）](#主时序图run-到-rewardclaimed)
+- [存档与恢复时序图（RunState）](#存档与恢复时序图runstate)
+- [常用入口文件索引](#常用入口文件索引)
+- [启动到奖励结算导航顺序（按入口跳转）](#启动到奖励结算导航顺序按入口跳转)
+- [建议阅读顺序（新人上手）](#建议阅读顺序新人上手)
+- [测试与规格文档位置](#测试与规格文档位置)
 
 ---
 
-## 项目结构
+## 模块划分（Scripts）
+
+| 模块 | 目录 | 职责 |
+|---|---|---|
+| Core | `Assets/Scripts/Core` | 全局状态机、事件中心、基础枚举、对象池 |
+| Data | `Assets/Scripts/Data` | Run 运行态、Buff 运行态、配置 SO、存档 |
+| Rogue.Dungeon | `Assets/Scripts/Rogue/Dungeon` | 地牢生成、地图运行态、房间视图、奖励掉落 |
+| Debug | `Assets/Scripts/Debug` | 运行时调试启动、房间清理探针、移动诊断 |
+| UI | `Assets/Scripts/UI` | 启动面板等 UI 入口 |
+
+---
+
+## 项目结构（简化）
 
 ```text
-Assets/Scripts/
-├── Core/                                  # Core 程序集（无外部依赖）
-│   ├── Core.asmdef
-│   ├── GameState.cs
-│   ├── GameManager.cs
-│   ├── Events/
-│   │   ├── EventType.cs                   # GameEventType（含 RunReady / DungeonReady 等）
-│   │   ├── EventCenter.cs                 # 强类型事件中心
-│   │   ├── GameEvents.cs                  # 通用 gameplay 事件 payload
-│   │   └── DungeonReadyEvent.cs           # DungeonReady payload
-│   └── Pool/
-│       ├── IPoolable.cs
-│       └── ObjectPool.cs
-│
-├── Data/                                  # Data 程序集（引用 Core）
-│   ├── Data.asmdef
-│   ├── SerializableKeyValue.cs
-│   ├── Config/
-│   │   └── IConfigData.cs
-│   ├── Runtime/
-│   │   ├── RunState.cs
-│   │   ├── RunReadyEvent.cs
-│   │   └── RunManager.cs
-│   └── Save/
-│       ├── ISaveData.cs
-│       ├── MetaProgressSave.cs
-│       └── SaveManager.cs
-│
-├── Rogue/Dungeon/                         # Rogue.Dungeon 程序集（引用 Core + Data）
-│   ├── Rogue.Dungeon.asmdef
-│   ├── DungeonEvents.cs
-│   ├── DungeonManager.cs
-│   ├── Data/
-│   │   ├── Direction.cs / DoorSlot.cs
-│   │   ├── RoomShape.cs / RoomType.cs
-│   │   ├── RoomTemplateSO.cs
-│   │   └── FloorConfigSO.cs
-│   ├── Runtime/
-│   │   ├── DungeonMap.cs
-│   │   ├── RoomInstance.cs
-│   │   └── DoorConnection.cs
-│   ├── Generation/
-│   │   ├── DungeonGenerator.cs
-│   │   ├── FootprintBuilder.cs / SpanningTreeBuilder.cs
-│   │   ├── RoomMerger.cs / SpecialRoomAssigner.cs
-│   │   ├── TemplateSelector.cs / SeededRandom.cs
-│   │   └── ...
-│   └── View/
-│       ├── DungeonViewManager.cs
-│       ├── RoomView.cs / DoorView.cs / DoorState.cs
-│       ├── DoorTransitCoordinator.cs
-│       ├── DungeonCamera.cs
-│       ├── RoomBehaviorOrchestrator.cs
-│       ├── RoomBehaviors/
-│       │   ├── IRoomBehavior.cs
-│       │   ├── StartRoomBehavior.cs
-│       │   ├── NormalRoomBehavior.cs
-│       │   └── BossRoomBehavior.cs
-│       ├── SimpleFogController.cs / IRoomFogController.cs
-│       └── SpawnPoint.cs / SpawnType.cs / ISpawnPointProvider.cs
-│
-├── Debug/                                 # 调试脚本（PlayMode 快速验证）
-│   ├── DebugAutoStart.cs
-│   ├── DebugRuntimeInstaller.cs
-│   ├── RoomClearDebugProbe.cs
-│   └── ...
-│
-└── UI/
-    └── StartPanel.cs
+.
+├─ Assets/
+│  ├─ Scenes/                      # 场景资源（如 PatrickStarTest）
+│  ├─ Scripts/
+│  │  ├─ Core/                    # 状态机、事件、对象池、Buff基础枚举
+│  │  ├─ Data/                    # Run/Buff运行态、配置、存档
+│  │  ├─ Rogue/Dungeon/
+│  │  │  ├─ Data/
+│  │  │  ├─ Generation/
+│  │  │  ├─ Runtime/
+│  │  │  ├─ View/
+│  │  │  └─ Reward/
+│  │  ├─ Debug/
+│  │  └─ UI/
+│  ├─ Data/Buff/                  # BuffPool 与 Buff 配置资源
+│  ├─ Prefabs/                    # FloorSO / RoomTemplate / Reward
+│  ├─ Tests/EditMode/             # 主要自动化测试目录
+│  └─ 美术音频资源目录（Tiles/TMP/...）
+├─ Packages/
+│  ├─ manifest.json               # Unity 包声明
+│  └─ packages-lock.json
+├─ ProjectSettings/
+├─ openspec/                      # 规格与评审记录（被 .gitignore 忽略）
+│  ├─ specs/
+│  ├─ references/
+│  └─ changes/archive/
+└─ README.md
 ```
 
 ---
 
-## 架构概览
+## 关键依赖关系（asmdef）
 
-### 分层职责
-
-| 层级 | 核心职责 | 关键类型 |
-|------|----------|----------|
-| **Core** | 游戏状态切换、事件总线、对象池 | `GameManager`, `EventCenter`, `ObjectPool` |
-| **Data** | Run 生命周期、存档与运行态数据 | `RunManager`, `RunState`, `SaveManager` |
-| **Rogue.Dungeon** | 地牢生成、地图运行态、房间视图与转场 | `DungeonManager`, `DungeonGenerator`, `DungeonViewManager`, `DoorTransitCoordinator` |
-
-### 运行主链路
-
-`GameManager(ChangeState)`  
-→ `RunManager(监听 GameStateChanged)`  
-→ `RunReady`  
-→ `DungeonManager.Generate`  
-→ `DungeonGenerated`  
-→ `DungeonViewManager` 实例化  
-→ `DungeonReady`  
-→ 门/相机/房间行为系统进入工作态。
+1. `Core` 不依赖 `Data`、`Rogue.Dungeon`
+2. `Data` 依赖 `Core`
+3. `Rogue.Dungeon` 依赖 `Core` + `Data`
 
 ---
 
-## 类图
+## 模块依赖图（编译期）
 
 ```mermaid
-classDiagram
-    direction TB
+graph TD
+    Core[Core.asmdef]
+    Data[Data.asmdef]
+    Dungeon[Rogue.Dungeon.asmdef]
 
-    class GameManager {
-      +Instance
-      +CurrentState
-      +ChangeState(GameState)
-    }
-    class EventCenter {
-      <<static>>
-      +AddListener(...)
-      +RemoveListener(...)
-      +Broadcast(...)
-      +Clear()
-    }
-    class RunManager {
-      +Instance
-      +CurrentRun
-      +HasCheckpoint
-    }
-    class DungeonManager {
-      +Instance
-      +CurrentMap
-      +CurrentRoom
-      +TransitToRoom(roomId)
-      +AdvanceFloor()
-    }
-    class DungeonViewManager {
-      +CellWorldSize
-      +TryGetRoomView(roomId, out RoomView)
-      +AllRoomViews
-    }
-    class RoomView {
-      +Room
-      +ActiveDoors
-      +SetVisibility(RoomVisibility)
-      +NotifyEnter()
-      +NotifyClear()
-      +NotifyExit()
-    }
-    class DoorView {
-      +State
-      +ConnectedDoor
-      +Initialize(...)
-      +Lock()
-      +Unlock()
-      +BeginTransit()
-      +EndTransit()
-    }
-    class DoorTransitCoordinator {
-      +InputEnabled
-      +RequestTransit(DoorView)
-      +TeleportPlayer(DoorView)
-    }
-    class DungeonCamera {
-      +FollowTarget
-      +IsTransitioning
-      +CurrentBounds
-    }
-
-    GameManager --> EventCenter : Broadcast(GameStateChanged)
-    RunManager --> EventCenter : Listen/Broadcast
-    DungeonManager --> EventCenter : Broadcast(DungeonGenerated/RoomEntered)
-    DungeonViewManager --> EventCenter : Listen/Broadcast(DungeonReady)
-    DoorTransitCoordinator --> DungeonManager : TransitToRoom
-    DoorTransitCoordinator --> DungeonViewManager : Query RoomView
-    RoomView --> DoorView : 初始化绑定
-    DungeonCamera --> EventCenter : Listen(RoomEntered)
+    Data --> Core
+    Dungeon --> Core
+    Dungeon --> Data
 ```
 
 ---
 
-## 时序图
+## 流程图总览
 
-### 1) Run 初始化到地牢可进入
+| 图示 | 关注点 | 快速入口 |
+|---|---|---|
+| 状态跳转图 | GameState 合法迁移与奖励阶段切换 | [跳转](#状态跳转图gamestate) |
+| 主时序图 | 从 RunInit 到 RewardClaimed 的主链路 | [跳转](#主时序图run-到-rewardclaimed) |
+| 存档恢复图 | `run_checkpoint` 的保存、加载、清理 | [跳转](#存档与恢复时序图runstate) |
+
+---
+
+## 状态跳转图（GameState）
+
+```mermaid
+stateDiagram-v2
+    [*] --> Boot
+    Boot --> Hub: 启动完成
+    Hub --> RunInit: 开始新Run
+    RunInit --> RoomPlaying: GameEventType.DungeonReady
+
+    RoomPlaying --> RoomClear: ChangeState(RoomClear)
+    RoomPlaying --> BossPlaying: 进入Boss战
+    RoomPlaying --> RunEnd: 失败/退出
+
+    RoomClear --> RewardSelect: ChangeState(RewardSelect)
+    RewardSelect --> RoomPlaying: GameEventType.RewardClaimed(继续探索)
+    RewardSelect --> RunEnd: GameEventType.RewardClaimed(结束Run)
+
+    BossPlaying --> RewardSelect: Boss击败
+    BossPlaying --> RunEnd: 失败
+    RunEnd --> Hub
+```
+
+---
+
+## 主时序图（Run 到 RewardClaimed）
 
 ```mermaid
 sequenceDiagram
@@ -213,212 +133,132 @@ sequenceDiagram
     participant RM as RunManager
     participant DM as DungeonManager
     participant DVM as DungeonViewManager
+    participant RBO as RoomBehaviorOrchestrator
+    participant RS as RewardSpawner
+    participant RR as RewardRoller
+    participant BD as BuffDrop
+    participant BM as BuffManager
+    participant P as Player
 
-    GM->>EC: Broadcast(GameStateChanged: -> RunInit)
+    GM->>GM: ChangeState(RunInit)
+    GM->>EC: Broadcast(GameEventType.GameStateChanged)
     EC->>RM: OnGameStateChanged
-    RM->>EC: Broadcast(RunReady)
+    RM->>RM: InitRun / RestoreRun
+    RM->>EC: Broadcast(GameEventType.RunReady)
     EC->>DM: OnRunReady
-    DM->>DM: DungeonGenerator.Generate(seed, floorConfig)
-    DM->>EC: Broadcast(DungeonGenerated)
+    DM->>DM: GenerateDungeon(seed, floorConfig)
+    DM->>EC: Broadcast(GameEventType.DungeonGenerated)
     EC->>DVM: OnDungeonGenerated
-    DVM->>DVM: Instantiate RoomView + Init Fog
-    DVM->>EC: Broadcast(DungeonReady)
+    DVM->>EC: Broadcast(GameEventType.DungeonReady)
+    EC->>GM: OnDungeonReady
+    GM->>GM: ChangeState(RoomPlaying)
+
+    RBO->>GM: 房间清空后 ChangeState(RoomClear)
+    GM->>GM: ChangeState(RewardSelect)
+    RS->>RM: 读取 CurrentRun.PendingReward
+    alt PendingReward 可恢复
+        RS->>RS: 使用 pending.OfferedBuffIds
+    else 需要新抽取
+        RS->>RR: Roll(pool, seed, count)
+        RR-->>RS: offeredBuffIds
+        RS->>RM: 写入 PendingReward(RoomId, OfferedBuffIds)
+    end
+    RS->>BD: SpawnDrops(offeredBuffIds)
+    P->>BD: OnTriggerEnter2D(Player)
+    BD->>BM: ApplyBuff(buffId, sourceId)
+    BM->>EC: Broadcast(GameEventType.BuffApplied, BuffAppliedEvent)
+    BD->>RS: OnPicked(buffId)
+    RS->>RM: 清空 PendingReward
+    RS->>EC: Broadcast(GameEventType.RewardClaimed, RewardClaimedEvent)
+    RS->>GM: ChangeState(RoomPlaying / RunEnd)
 ```
 
-### 2) 门触发转场到新房间
+---
+
+## 存档与恢复时序图（RunState）
 
 ```mermaid
 sequenceDiagram
-    participant P as Player
-    participant DV as DoorView
-    participant TC as DoorTransitCoordinator
-    participant DM as DungeonManager
-    participant Cam as DungeonCamera
-    participant RBO as RoomBehaviorOrchestrator
+    participant GM as GameManager
+    participant EC as EventCenter
+    participant RM as RunManager
+    participant SM as SaveManager
+    participant RS as RewardSpawner
 
-    P->>DV: OnTriggerEnter2D(Player)
-    DV->>TC: OnPlayerEntered(this)
-    TC->>TC: BeginTransit + InputEnabled=false
-    TC->>TC: TeleportPlayer(targetDoor)
-    TC->>DM: TransitToRoom(targetRoomId)
-    DM->>Cam: RoomEntered
-    DM->>RBO: RoomEntered
-    Cam->>Cam: PanToRoom(...)
-    RBO->>RBO: old.NotifyExit() + new.NotifyEnter()
-    TC->>TC: EndTransit + InputEnabled=true
+    GM->>EC: Broadcast(GameEventType.GameStateChanged -> RunInit)
+    EC->>RM: OnGameStateChanged(RunInit)
+    alt HasCheckpoint = true
+        RM->>SM: LoadRaw("run_checkpoint")
+        SM-->>RM: RunState(含 ActiveBuffs/PendingReward)
+    else 无续关存档
+        RM->>RM: new RunState(seed, runId)
+    end
+    RM->>EC: Broadcast(GameEventType.RunReady)
+    EC->>RS: DungeonReady 后触发恢复检查
+    RS->>RM: TryRestorePendingReward()
+
+    GM->>EC: Broadcast(GameEventType.GameStateChanged -> RoomClear)
+    EC->>RM: OnGameStateChanged(RoomClear)
+    RM->>SM: SaveRaw("run_checkpoint", CurrentRun)
+
+    GM->>EC: Broadcast(GameEventType.GameStateChanged -> RunEnd)
+    EC->>RM: OnGameStateChanged(RunEnd)
+    RM->>SM: DeleteSave("run_checkpoint")
+    RM->>RM: CurrentRun = null
 ```
 
 ---
 
-## 模块依赖
+## 常用入口文件索引
 
-```mermaid
-graph TD
-    Core[Core asmdef]
-    Data[Data asmdef]
-    Dungeon[Rogue.Dungeon asmdef]
-
-    Data --> Core
-    Dungeon --> Core
-    Dungeon --> Data
-```
-
-依赖约束：
-
-1. `Core` 不引用 `Data` 与 `Rogue.Dungeon`
-2. `Data` 不引用 `Rogue.Dungeon`
-3. 地牢相关逻辑集中在 `Rogue.Dungeon`
+| 入口 | 路径 | 说明 |
+|---|---|---|
+| GameManager | [Assets/Scripts/Core/GameManager.cs](Assets/Scripts/Core/GameManager.cs) | 全局状态切换与 `GameStateChanged` 广播 |
+| EventCenter | [Assets/Scripts/Core/Events/EventCenter.cs](Assets/Scripts/Core/Events/EventCenter.cs) | 统一事件订阅/广播总线 |
+| RunManager | [Assets/Scripts/Data/Runtime/RunManager.cs](Assets/Scripts/Data/Runtime/RunManager.cs) | Run 创建/恢复与运行态主入口 |
+| BuffManager | [Assets/Scripts/Data/Runtime/BuffManager.cs](Assets/Scripts/Data/Runtime/BuffManager.cs) | Buff 生命周期、叠层、过期、持久化绑定 |
+| DungeonManager | [Assets/Scripts/Rogue/Dungeon/DungeonManager.cs](Assets/Scripts/Rogue/Dungeon/DungeonManager.cs) | 地牢生成、房间切换、楼层推进 |
+| DungeonGenerator | [Assets/Scripts/Rogue/Dungeon/Generation/DungeonGenerator.cs](Assets/Scripts/Rogue/Dungeon/Generation/DungeonGenerator.cs) | Seed 驱动的地图生成主流程 |
+| DungeonViewManager | [Assets/Scripts/Rogue/Dungeon/View/DungeonViewManager.cs](Assets/Scripts/Rogue/Dungeon/View/DungeonViewManager.cs) | 地图视图实例化与可见性初始化 |
+| DoorTransitCoordinator | [Assets/Scripts/Rogue/Dungeon/View/DoorTransitCoordinator.cs](Assets/Scripts/Rogue/Dungeon/View/DoorTransitCoordinator.cs) | 门触发转场、传送、输入门控 |
+| RoomBehaviorOrchestrator | [Assets/Scripts/Rogue/Dungeon/View/RoomBehaviorOrchestrator.cs](Assets/Scripts/Rogue/Dungeon/View/RoomBehaviorOrchestrator.cs) | 房间进入/清理/退出行为编排 |
+| RewardSpawner | [Assets/Scripts/Rogue/Dungeon/Reward/RewardSpawner.cs](Assets/Scripts/Rogue/Dungeon/Reward/RewardSpawner.cs) | 奖励掉落生成、恢复与领取流转 |
+| RewardRoller | [Assets/Scripts/Rogue/Dungeon/Reward/RewardRoller.cs](Assets/Scripts/Rogue/Dungeon/Reward/RewardRoller.cs) | 基于 seed 的奖励抽取 |
+| BuffDrop | [Assets/Scripts/Rogue/Dungeon/Reward/BuffDrop.cs](Assets/Scripts/Rogue/Dungeon/Reward/BuffDrop.cs) | 掉落实体表现与拾取触发 |
 
 ---
 
-## 核心数据模型
+## 启动到奖励结算导航顺序（按入口跳转）
 
-### RunState（单局运行态）
-
-- 关键字段：`RunId`, `Seed`, `FloorIndex`, `RoomIndex`, `ElapsedTime`, `CurrentHP`
-- 集合字段：`ActiveBuffIds`, `Inventory(List<SerializableKeyValue<string,int>>)`
-
-### DungeonMap（地牢运行态地图）
-
-- `StartRoomId`, `BossRoomId`, `AllRooms`
-- `GetRoom(id)` 与 `GetConnectedRoom(roomId, doorSlot)` 快速查询
-- 由 `DungeonMap.Build(...)` 从生成节点构建最终房间与门连接
-
-### RoomInstance（房间实例）
-
-- 不可变拓扑：`Id`, `Type`, `Shape`, `GridPosition`, `Cells`, `Template`, `Doors`
-- 可变运行标记：`Visited`, `Cleared`
+1. `GameManager.ChangeState(RunInit)` 触发 `GameEventType.GameStateChanged` → [GameManager.cs](Assets/Scripts/Core/GameManager.cs)
+2. `RunManager` 处理 `GameStateChanged` 后广播 `GameEventType.RunReady` → [RunManager.cs](Assets/Scripts/Data/Runtime/RunManager.cs)
+3. `DungeonManager` 响应 `RunReady`，调用 `DungeonGenerator.Generate(...)` → [DungeonManager.cs](Assets/Scripts/Rogue/Dungeon/DungeonManager.cs) / [DungeonGenerator.cs](Assets/Scripts/Rogue/Dungeon/Generation/DungeonGenerator.cs)
+4. 地图完成后广播 `GameEventType.DungeonGenerated`，由 `DungeonViewManager` 构建视图 → [DungeonViewManager.cs](Assets/Scripts/Rogue/Dungeon/View/DungeonViewManager.cs)
+5. 视图就绪后广播 `GameEventType.DungeonReady`，`GameManager` 自动切到 `RoomPlaying` → [GameManager.cs](Assets/Scripts/Core/GameManager.cs)
+6. 房间清空路径：`RoomBehaviorOrchestrator` 触发 `RoomClear -> RewardSelect` → [RoomBehaviorOrchestrator.cs](Assets/Scripts/Rogue/Dungeon/View/RoomBehaviorOrchestrator.cs)
+7. `RewardSpawner` 进入奖励阶段并执行 `RewardRoller.Roll(...)` → [RewardSpawner.cs](Assets/Scripts/Rogue/Dungeon/Reward/RewardSpawner.cs) / [RewardRoller.cs](Assets/Scripts/Rogue/Dungeon/Reward/RewardRoller.cs)
+8. `BuffDrop.OnTriggerEnter2D(Player)` 触发拾取 → [BuffDrop.cs](Assets/Scripts/Rogue/Dungeon/Reward/BuffDrop.cs)
+9. Buff 应用后广播 `GameEventType.BuffApplied` → [BuffManager.cs](Assets/Scripts/Data/Runtime/BuffManager.cs)
+10. 奖励领取广播 `GameEventType.RewardClaimed`，并切换到 `RoomPlaying` 或 `RunEnd` → [RewardSpawner.cs](Assets/Scripts/Rogue/Dungeon/Reward/RewardSpawner.cs)
 
 ---
 
-## 地牢生成流水线（10 步）
+## 建议阅读顺序（新人上手）
 
-`DungeonGenerator.Generate(seed, config)` 主流程：
-
-| 步骤 | 说明 |
-|------|------|
-| 1 | 校验 `FloorConfigSO` |
-| 2 | 派生布局 RNG 与内容 RNG |
-| 3 | 随机选择对角锚点方案（Start/Boss） |
-| 4 | 通过多源 BFS 构建 footprint |
-| 5 | 用方向偏置 DFS 构建生成树 |
-| 6 | 合并 Boss 房并约束单连接 |
-| 7 | 查找主路径并分配特殊房（Elite/Shop/Event） |
-| 8 | 普通房按权重与合并率执行形状合并 |
-| 9 | 模板分配（`TemplateSelector`） |
-| 10 | `DungeonMap.Build` 生成最终运行态地图 |
-
-可复现性基础：
-
-- 主 seed 来源于 `RunState.Seed`
-- `SeededRandom.Hash(seed, "layout"/"content")` 保证子流程可重放
+1. [Assets/Scripts/Core/GameState.cs](Assets/Scripts/Core/GameState.cs) — 先理解状态枚举与流程边界。
+2. [GameManager.cs](Assets/Scripts/Core/GameManager.cs) + [EventCenter.cs](Assets/Scripts/Core/Events/EventCenter.cs) — 理解状态驱动与事件总线。
+3. [RunState.cs](Assets/Scripts/Data/Runtime/RunState.cs) + [RunManager.cs](Assets/Scripts/Data/Runtime/RunManager.cs) — 理解单局运行态与生命周期。
+4. [DungeonManager.cs](Assets/Scripts/Rogue/Dungeon/DungeonManager.cs) + [DungeonGenerator.cs](Assets/Scripts/Rogue/Dungeon/Generation/DungeonGenerator.cs) — 理解地牢生成与房间切换主链路。
+5. [DungeonViewManager.cs](Assets/Scripts/Rogue/Dungeon/View/DungeonViewManager.cs) + [RoomBehaviorOrchestrator.cs](Assets/Scripts/Rogue/Dungeon/View/RoomBehaviorOrchestrator.cs) — 理解视图初始化、房间行为和门转场。
+6. [BuffManager.cs](Assets/Scripts/Data/Runtime/BuffManager.cs) + [RewardSpawner.cs](Assets/Scripts/Rogue/Dungeon/Reward/RewardSpawner.cs) + [BuffDrop.cs](Assets/Scripts/Rogue/Dungeon/Reward/BuffDrop.cs) — 最后看 Buff 与奖励系统接入。
 
 ---
 
-## API 参考与使用说明
+## 测试与规格文档位置
 
-### GameManager 状态机
+- EditMode 自动化：[Assets/Tests/EditMode/](Assets/Tests/EditMode/)
+- 奖励系统相关回归：[Assets/Tests/EditMode/Rogue/Dungeon/Reward/](Assets/Tests/EditMode/Rogue/Dungeon/Reward/)
+- OpenSpec 主规格：[openspec/specs/](openspec/specs/)
+- 评审与测试记录：[openspec/references/20260421/](openspec/references/20260421/)
 
-```csharp
-// 合法迁移示例：Boot -> Hub -> RunInit
-GameManager.Instance.ChangeState(GameState.Hub);
-GameManager.Instance.ChangeState(GameState.RunInit);
-
-// 读取状态
-var current = GameManager.Instance.CurrentState;
-```
-
-说明：
-
-- `ChangeState` 是唯一状态入口
-- 非法迁移仅记录 `LogWarning`，不会抛异常中断流程
-
----
-
-### EventCenter 事件中心
-
-```csharp
-using RogueDungeon.Core.Events;
-
-EventCenter.AddListener<RoomEnteredEvent>(GameEventType.RoomEntered, OnRoomEntered);
-EventCenter.RemoveListener<RoomEnteredEvent>(GameEventType.RoomEntered, OnRoomEntered);
-
-void OnRoomEntered(RoomEnteredEvent evt) { /* ... */ }
-
-EventCenter.Broadcast(GameEventType.RoomCleared, new RoomClearedEvent
-{
-    RoomId = "room_2_3",
-    ElapsedTime = 18.5f
-});
-```
-
-说明：
-
-- 同一 `GameEventType` 应保持一致的委托签名
-- 推荐生命周期：`OnEnable` 订阅、`OnDisable` 退订
-
----
-
-### RunManager 与 DungeonManager
-
-```csharp
-// RunManager：读取当前 Run
-var run = RunManager.Instance.CurrentRun;
-
-// DungeonManager：读取地图与当前房间
-var map = DungeonManager.Instance.CurrentMap;
-var room = DungeonManager.Instance.CurrentRoom;
-
-// 手动切换房间（通常由 DoorTransitCoordinator 调用）
-DungeonManager.Instance.TransitToRoom("room_1_2");
-```
-
-说明：
-
-- `RunManager` 在 `RunInit` 进入时创建/恢复 Run，并广播 `RunReady`
-- `DungeonManager` 在 `RunReady` 后生成地图并广播 `DungeonGenerated`
-- `AdvanceFloor()` 用于层推进并触发新地牢生成
-
----
-
-### DungeonViewManager 与 DungeonCamera
-
-```csharp
-// 查询房间视图
-if (dungeonViewManager.TryGetRoomView(roomId, out var roomView))
-{
-    roomView.SetVisibility(RoomVisibility.Revealed);
-}
-
-// 读取运行时 CellWorldSize（由 Inspector 驱动）
-int cellSize = DungeonViewManager.CellWorldSize;
-```
-
-说明：
-
-- `DungeonViewManager` 负责“清旧 + 全量实例化 + 初始迷雾 + DungeonReady 广播”
-- `DungeonCamera` 在 `RoomEntered` 时平滑切换；平时跟随并钳制在当前房间 AABB
-
----
-
-### DoorView、DoorTransitCoordinator、RoomBehaviorOrchestrator
-
-```csharp
-// DoorView 状态转换
-doorView.Unlock();
-doorView.BeginTransit();
-doorView.EndTransit();
-
-// DoorTransitCoordinator 全局输入门控
-bool canMove = DoorTransitCoordinator.InputEnabled;
-```
-
-说明：
-
-- `DoorView` 仅在 `Unlocked` 且触发者为 `Player` 时发出 `OnPlayerEntered`
-- `DoorTransitCoordinator` 负责防重入、门连接匹配、玩家落点计算、相机等待与输入恢复
-- 玩家落点规则：
-  1. 优先 `DoorTrigger Collider2D.bounds` 内缘锚点
-  2. 回退 `targetDoor.transform.position`
-  3. 偏移距离 `d = max(_entryOffsetDistance, 0.1f)`，方向为目标门朝向反向（房间内侧）
-- `RoomBehaviorOrchestrator` 统一调度 `NotifyExit/NotifyEnter/NotifyClear`，避免行为散落在多组件
+> 说明：`openspec/` 在仓库 `.gitignore` 中配置为忽略目录，用于本地规格流转与归档记录管理。

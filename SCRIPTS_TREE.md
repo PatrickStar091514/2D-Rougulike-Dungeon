@@ -10,6 +10,11 @@ Assets/Scripts
 │  ├─ Core.asmdef
 │  ├─ GameManager.cs
 │  ├─ GameState.cs
+│  ├─ Buff
+│  │  ├─ StatType.cs
+│  │  ├─ Rarity.cs
+│  │  ├─ DurationType.cs
+│  │  └─ ModifyType.cs
 │  ├─ Pool
 │  │  ├─ ObjectPool.cs
 │  │  └─ IPoolable.cs
@@ -21,19 +26,25 @@ Assets/Scripts
 │  ├─ Data.asmdef
 │  ├─ SerializableKeyValue.cs
 │  ├─ Config
-│  │  └─ IConfigData.cs
+│  │  ├─ IConfigData.cs
+│  │  ├─ StatModifier.cs
+│  │  ├─ BuffConfigSO.cs
+│  │  └─ BuffPoolSO.cs
 │  ├─ Save
 │  │  ├─ SaveManager.cs
 │  │  ├─ MetaProgressSave.cs
 │  │  └─ ISaveData.cs
 │  └─ Runtime
 │     ├─ RunState.cs
-│     └─ RunManager.cs
+│     ├─ RunManager.cs
+│     ├─ BuffManager.cs
+│     ├─ BuffInstance.cs
+│     └─ PendingReward.cs
 └─ UI
    └─ StartPanel.cs
 
 ``` 
 
-文件计数: 17
+文件计数: 27
 
 如需包含子目录中更多文件或以不同格式（例如 Markdown 链接或 JSON）导出，请告诉我。

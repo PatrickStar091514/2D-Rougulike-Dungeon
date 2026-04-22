@@ -20,8 +20,10 @@ namespace RogueDungeon.Tests.Dungeon
         {
             EventCenter.Clear();
             _managerGo = new GameObject("DungeonManager_Test");
-            LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("floorConfigs 未配置|floorConfigs 未配置或为空"));
             _manager = _managerGo.AddComponent<DungeonManager>();
+            LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("floorConfigs 未配置|floorConfigs 未配置或为空"));
+            InvokePrivateNoArg(_manager, "Awake");
+            InvokePrivateNoArg(_manager, "OnEnable");
         }
 
         [TearDown]
@@ -77,6 +79,13 @@ namespace RogueDungeon.Tests.Dungeon
             var field = typeof(DungeonManager).GetField("<Instance>k__BackingField",
                 BindingFlags.Static | BindingFlags.NonPublic);
             field?.SetValue(null, value);
+        }
+
+        private static void InvokePrivateNoArg(object instance, string methodName)
+        {
+            var method = instance.GetType().GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull(method, $"{methodName} method not found");
+            method.Invoke(instance, null);
         }
     }
 }

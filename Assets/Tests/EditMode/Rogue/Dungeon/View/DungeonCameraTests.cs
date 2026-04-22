@@ -322,6 +322,7 @@ namespace RogueDungeon.Tests.Dungeon.View
                 ?.SetValue(controller, orthographicSize);
             var onValidate = typeof(DungeonCamera).GetMethod("OnValidate", BindingFlags.NonPublic | BindingFlags.Instance);
             onValidate?.Invoke(controller, null);
+            InvokePrivateNoArg(controller, "OnEnable");
 
             return (camera, controller);
         }
@@ -330,8 +331,8 @@ namespace RogueDungeon.Tests.Dungeon.View
         {
             var dmGo = new GameObject("DungeonManager");
             _createdObjects.Add(dmGo);
-            LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("floorConfigs 未配置|floorConfigs 未配置或为空"));
             var manager = dmGo.AddComponent<DungeonManager>();
+            SetStaticDungeonManagerInstance(manager);
 
             SetAutoProperty(manager, "CurrentMap", map);
             SetAutoProperty(manager, "CurrentRoom", currentRoom);
@@ -361,6 +362,13 @@ namespace RogueDungeon.Tests.Dungeon.View
             var field = typeof(DungeonManager).GetField("<Instance>k__BackingField",
                 BindingFlags.Static | BindingFlags.NonPublic);
             field?.SetValue(null, value);
+        }
+
+        private static void InvokePrivateNoArg(object instance, string methodName)
+        {
+            var method = instance.GetType().GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull(method, $"{methodName} method not found");
+            method.Invoke(instance, null);
         }
 
         #endregion

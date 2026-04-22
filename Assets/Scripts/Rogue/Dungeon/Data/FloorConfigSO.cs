@@ -23,7 +23,6 @@ namespace RogueDungeon.Rogue.Dungeon.Data
         [SerializeField] private int gridHeight = 4;         // 网格高度
         [SerializeField] private int targetRoomCount = 12;   // 目标房间总数
         [SerializeField] private int eliteCount = 1;         // 精英房数量
-        [SerializeField] private int shopCount = 1;          // 商店房数量
         [SerializeField] private int eventCount = 1;         // 事件房数量
         [SerializeField] private float mergeRate = 0.3f;     // 普通房合并率 [0,1]
         [SerializeField] private ShapeWeight[] shapeWeights; // 各形状的合并权重
@@ -40,9 +39,6 @@ namespace RogueDungeon.Rogue.Dungeon.Data
 
         /// <summary>精英房数量</summary>
         public int EliteCount => eliteCount;
-
-        /// <summary>商店房数量</summary>
-        public int ShopCount => shopCount;
 
         /// <summary>事件房数量</summary>
         public int EventCount => eventCount;
@@ -82,7 +78,7 @@ namespace RogueDungeon.Rogue.Dungeon.Data
                 valid = false;
             }
 
-            int specialTotal = eliteCount + shopCount + eventCount;
+            int specialTotal = eliteCount + eventCount;
             if (specialTotal >= targetRoomCount - 2)
             {
                 Debug.LogWarning($"[FloorConfigSO] 特殊房间总数 ({specialTotal}) 过多，应小于 targetRoomCount-2 ({targetRoomCount - 2})");

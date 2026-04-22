@@ -14,15 +14,16 @@ namespace RogueDungeon.Data.Runtime
         public int RoomIndex;                      // 当前房间索引
         public float ElapsedTime;                  // 已用时间（秒）
         public int CurrentHP;                      // 当前生命值
-        public List<string> ActiveBuffIds;         // 激活 Buff ID 列表
+        public List<BuffInstance> ActiveBuffs;      // 激活 Buff 实例列表
         public List<SerializableKeyValue<string, int>> Inventory; // 物品快照（可序列化）
+        public PendingReward PendingReward;        // 待领取奖励（可为 null）
 
         /// <summary>
         /// 创建默认的 RunState 实例，初始化集合字段
         /// </summary>
         public RunState()
         {
-            ActiveBuffIds = new List<string>();
+            ActiveBuffs = new List<BuffInstance>();
             Inventory = new List<SerializableKeyValue<string, int>>();
         }
     }

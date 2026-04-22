@@ -42,8 +42,39 @@ namespace RogueDungeon.Rogue.Dungeon
         /// </summary>
         public RoomInstance CurrentRoom { get; private set; }
 
+        private bool _initialized; // 是否完成单例初始化
+
         private void Awake()
         {
+            EnsureInitialized();
+        }
+
+        private void OnEnable()
+        {
+            EnsureInitialized();
+            RegisterEvents();
+        }
+
+        private void OnDisable()
+        {
+            UnregisterEvents();
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+                Instance = null;
+
+            if (_initialized)
+                SceneManager.sceneLoaded -= OnSceneLoaded;
+
+            UnregisterEvents();
+        }
+
+        private void EnsureInitialized()
+        {
+            if (_initialized) return;
+
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
@@ -51,21 +82,14 @@ namespace RogueDungeon.Rogue.Dungeon
             }
 
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            if (Application.isPlaying)
+                DontDestroyOnLoad(gameObject);
 
             if (floorConfigs == null || floorConfigs.Length == 0)
-            {
                 Debug.LogError("[DungeonManager] floorConfigs 未配置或为空，请在 Inspector 中赋值");
-            }
 
             SceneManager.sceneLoaded += OnSceneLoaded;
-            RegisterEvents();
-        }
-
-        private void OnDestroy()
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-            UnregisterEvents();
+            _initialized = true;
         }
 
         /// <summary>

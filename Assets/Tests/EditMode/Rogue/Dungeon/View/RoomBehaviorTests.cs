@@ -4,6 +4,7 @@ using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using RogueDungeon.Core;
 using RogueDungeon.Rogue.Dungeon;
 using RogueDungeon.Rogue.Dungeon.Data;
 using RogueDungeon.Rogue.Dungeon.Runtime;
@@ -19,6 +20,7 @@ namespace RogueDungeon.Tests.Dungeon.View
         public void SetUp()
         {
             SetStaticDungeonManagerInstance(null);
+            SetStaticGameManagerInstance(null);
         }
 
         [TearDown]
@@ -30,6 +32,7 @@ namespace RogueDungeon.Tests.Dungeon.View
             }
             _created.Clear();
             SetStaticDungeonManagerInstance(null);
+            SetStaticGameManagerInstance(null);
         }
 
         #region Factory mapping
@@ -45,7 +48,6 @@ namespace RogueDungeon.Tests.Dungeon.View
         {
             Assert.IsInstanceOf<NormalRoomBehavior>(RoomView.CreateBehavior(RoomType.Normal));
             Assert.IsInstanceOf<NormalRoomBehavior>(RoomView.CreateBehavior(RoomType.Elite));
-            Assert.IsInstanceOf<NormalRoomBehavior>(RoomView.CreateBehavior(RoomType.Shop));
             Assert.IsInstanceOf<NormalRoomBehavior>(RoomView.CreateBehavior(RoomType.Event));
         }
 
@@ -111,6 +113,25 @@ namespace RogueDungeon.Tests.Dungeon.View
             behavior.OnEnter(roomView);
 
             Assert.AreEqual(DoorState.Unlocked, door.State);
+        }
+
+        [Test]
+        public void NormalRoomBehavior_OnClear_TransitionsToRewardSelect()
+        {
+            var gmGo = new GameObject("GameManager_Test");
+            _created.Add(gmGo);
+            var gameManager = gmGo.AddComponent<GameManager>();
+            SetStaticGameManagerInstance(gameManager);
+
+            gameManager.ChangeState(GameState.Hub);
+            gameManager.ChangeState(GameState.RunInit);
+            gameManager.ChangeState(GameState.RoomPlaying);
+
+            var roomView = CreateRoomView("normal_clear_state", RoomType.Normal, cleared: false);
+            var behavior = new NormalRoomBehavior();
+            behavior.OnClear(roomView);
+
+            Assert.AreEqual(GameState.RewardSelect, gameManager.CurrentState);
         }
 
         [Test]
@@ -265,7 +286,6 @@ namespace RogueDungeon.Tests.Dungeon.View
             var go = new GameObject("RoomBehaviorOrchestrator_Test");
             _created.Add(go);
 
-            LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("viewManager 未赋值"));
             var orchestrator = go.AddComponent<RoomBehaviorOrchestrator>();
 
             SetPrivateField(orchestrator, "_viewManager", manager);
@@ -277,8 +297,8 @@ namespace RogueDungeon.Tests.Dungeon.View
         {
             var go = new GameObject("DungeonManager_Test");
             _created.Add(go);
-            LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("floorConfigs 未配置|floorConfigs 未配置或为空"));
             var manager = go.AddComponent<DungeonManager>();
+            SetStaticDungeonManagerInstance(manager);
             SetAutoProperty(manager, "CurrentRoom", room);
         }
 
@@ -319,6 +339,13 @@ namespace RogueDungeon.Tests.Dungeon.View
         private static void SetStaticDungeonManagerInstance(object value)
         {
             var field = typeof(DungeonManager).GetField("<Instance>k__BackingField",
+                BindingFlags.Static | BindingFlags.NonPublic);
+            field?.SetValue(null, value);
+        }
+
+        private static void SetStaticGameManagerInstance(object value)
+        {
+            var field = typeof(GameManager).GetField("<Instance>k__BackingField",
                 BindingFlags.Static | BindingFlags.NonPublic);
             field?.SetValue(null, value);
         }
