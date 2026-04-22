@@ -15,15 +15,15 @@ public class PlayerInput : MonoBehaviour
         
     }
 
-    private void FixedUpdate()
-    {
-        readyToClear = true;
-    }
+    //private void FixedUpdate()
+    //{
+    //    readyToClear = true;
+    //}
     // Update is called once per frame
     void Update()
     {
-        ClearInput();
         ProcessInput();
+        ClearInput();
     }
 
     private void ClearInput()
@@ -36,11 +36,14 @@ public class PlayerInput : MonoBehaviour
 
     void ProcessInput()
     {
-        horizontal += Input.GetAxis("Horizontal");
-        horizontal = Mathf.Clamp(horizontal, -1, 1);
+        //horizontal += Input.GetAxis("Horizontal");
+        //horizontal = Mathf.Clamp(horizontal, -1, 1);
 
-        vertical += Input.GetAxis("Vertical");
-        vertical = Mathf.Clamp(vertical, -1, 1);
-        
+        //vertical += Input.GetAxis("Vertical");
+        //vertical = Mathf.Clamp(vertical, -1, 1);
+
+        horizontal = Input.GetAxis("Horizontal");
+        vertical = Input.GetAxis("Vertical");
+
     }
 }
