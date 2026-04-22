@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class PlayerShoot : MonoBehaviour
@@ -8,7 +9,7 @@ public class PlayerShoot : MonoBehaviour
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Transform firePoint;
     [SerializeField] private float bulletSpeed = 10f;
-    [SerializeField] private float fireRate = 0.3f;
+    [SerializeField] private float fireRate = 0.5f;
     [SerializeField] private SpriteRenderer weaponSprite;
     [SerializeField] private ShootingPatterns shootingPattern;
     //[SerializeField] private PlayerMovement flip;
@@ -29,18 +30,34 @@ public class PlayerShoot : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        weaponSprite.enabled = isVisible;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (shootTimer > 0f)
+        //if (shootTimer > 0f)
+        //{
+        //    shootTimer -= Time.deltaTime;
+        //}
+        //ShootBullet();
+        //WeaponVisible();
+
+        if (Input.GetButtonDown("Shoot"))
         {
-            shootTimer -= Time.deltaTime;
+            shootTimer = fireRate;
+            weaponSprite.enabled = true;
         }
-        ShootBullet();
-        WeaponVisible();
+
+        if (Input.GetButton("Shoot"))
+        {
+            shootTimer += Time.deltaTime;
+            if (shootTimer > fireRate)
+            {
+                shootTimer = 0f;
+                Shoot();
+            }
+        }
     }
 
     void WeaponVisible()
