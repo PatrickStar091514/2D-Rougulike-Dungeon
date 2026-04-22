@@ -7,6 +7,7 @@ public class PlayerInput : MonoBehaviour
 {
     public float horizontal;
     public float vertical;
+    public bool shootPressed;
     bool readyToClear;
 
     // Start is called before the first frame update
@@ -32,6 +33,7 @@ public class PlayerInput : MonoBehaviour
             return;
         horizontal = 0;
         vertical = 0;
+        shootPressed = false;
     }
 
     void ProcessInput()
@@ -44,6 +46,8 @@ public class PlayerInput : MonoBehaviour
 
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
+
+        shootPressed = shootPressed || Input.GetButtonDown("Shoot");
 
     }
 }
