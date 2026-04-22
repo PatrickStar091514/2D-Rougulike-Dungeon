@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,7 @@ public class PlayerInput : MonoBehaviour
 {
     public float horizontal;
     public float vertical;
+    bool readyToClear;
 
     // Start is called before the first frame update
     void Start()
@@ -13,10 +15,23 @@ public class PlayerInput : MonoBehaviour
         
     }
 
+    private void FixedUpdate()
+    {
+        readyToClear = true;
+    }
     // Update is called once per frame
     void Update()
     {
+        ClearInput();
         ProcessInput();
+    }
+
+    private void ClearInput()
+    {
+        if (!readyToClear)
+            return;
+        horizontal = 0;
+        vertical = 0;
     }
 
     void ProcessInput()
