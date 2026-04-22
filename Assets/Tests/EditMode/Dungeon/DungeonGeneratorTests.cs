@@ -23,8 +23,6 @@ namespace RogueDungeon.Tests.Dungeon
                 .SetValue(config, 12);
             type.GetField("eliteCount", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 .SetValue(config, 1);
-            type.GetField("shopCount", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .SetValue(config, 1);
             type.GetField("eventCount", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 .SetValue(config, 1);
             type.GetField("mergeRate", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
@@ -35,7 +33,7 @@ namespace RogueDungeon.Tests.Dungeon
 
             var singleTemplate = UnityEngine.ScriptableObject.CreateInstance<RoomTemplateSO>();
             SetTemplateFields(singleTemplate, "single_default", RoomShape.Single,
-                new RoomType[] { RoomType.Start, RoomType.Normal, RoomType.Elite, RoomType.Shop, RoomType.Event },
+                new RoomType[] { RoomType.Start, RoomType.Normal, RoomType.Elite, RoomType.Event },
                 new DoorSlot[]
                 {
                     new DoorSlot(UnityEngine.Vector2Int.zero, Direction.North),
@@ -177,16 +175,14 @@ namespace RogueDungeon.Tests.Dungeon
 
             Assert.IsNotNull(map);
 
-            int eliteCount = 0, shopCount = 0, eventCount = 0;
+            int eliteCount = 0, eventCount = 0;
             foreach (var room in map.AllRooms)
             {
                 if (room.Type == RoomType.Elite) eliteCount++;
-                else if (room.Type == RoomType.Shop) shopCount++;
                 else if (room.Type == RoomType.Event) eventCount++;
             }
 
             Assert.AreEqual(1, eliteCount, "应有 1 个 Elite 房间");
-            Assert.AreEqual(1, shopCount, "应有 1 个 Shop 房间");
             Assert.AreEqual(1, eventCount, "应有 1 个 Event 房间");
         }
     }

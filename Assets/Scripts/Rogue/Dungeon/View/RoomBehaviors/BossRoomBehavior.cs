@@ -1,3 +1,4 @@
+using RogueDungeon.Core;
 using UnityEngine;
 
 namespace RogueDungeon.Rogue.Dungeon.View
@@ -26,6 +27,11 @@ namespace RogueDungeon.Rogue.Dungeon.View
         public void OnClear(RoomView room)
         {
             Debug.Log($"[BossRoomBehavior] Boss defeated: {room.RoomId}");
+            var gameManager = GameManager.Instance;
+            if (gameManager == null) return;
+
+            gameManager.ChangeState(GameState.RoomClear);
+            gameManager.ChangeState(GameState.RewardSelect);
         }
 
         /// <inheritdoc/>

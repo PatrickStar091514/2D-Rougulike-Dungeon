@@ -167,7 +167,7 @@ namespace RogueDungeon.Rogue.Dungeon.View
 
         /// <summary>
         /// 根据 RoomType 创建对应的房间行为策略实例。
-        /// Elite/Shop/Event 在 MVP 阶段复用 NormalRoomBehavior，未知类型降级。
+        /// Elite/Event 在 MVP 阶段复用 NormalRoomBehavior，未知类型降级。
         /// </summary>
         /// <param name="type">房间类型</param>
         /// <returns>对应的 IRoomBehavior 实例</returns>
@@ -179,7 +179,6 @@ namespace RogueDungeon.Rogue.Dungeon.View
                     return new StartRoomBehavior();
                 case Data.RoomType.Normal:
                 case Data.RoomType.Elite:
-                case Data.RoomType.Shop:
                 case Data.RoomType.Event:
                     return new NormalRoomBehavior();
                 case Data.RoomType.Boss:

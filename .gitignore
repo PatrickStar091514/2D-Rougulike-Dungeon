@@ -83,7 +83,7 @@ mcp-config.json
 *.mcp-config.json
 
 # 自动生成的 commit/PR 内容文件
-commit-and-pr.txt
+commit-and-pr.md
 
 # OpenSpec local/user config (do NOT ignore openspec/config.yaml)
 # Conservative patterns to ignore local overrides and secrets

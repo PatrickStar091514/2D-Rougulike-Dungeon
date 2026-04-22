@@ -19,11 +19,14 @@ namespace RogueDungeon.Tests
             EventCenter.Clear();
             _go = new GameObject("TestGameManager");
             _gm = _go.AddComponent<GameManager>();
+            InvokePrivateNoArg(_gm, "OnEnable");
         }
 
         [TearDown]
         public void TearDown()
         {
+            if (_gm != null)
+                InvokePrivateNoArg(_gm, "OnDisable");
             EventCenter.Clear();
             if (_go != null) Object.DestroyImmediate(_go);
         }
@@ -135,6 +138,29 @@ namespace RogueDungeon.Tests
             Assert.AreEqual(GameState.Hub, received.ToState);
         }
 
+        [Test]
+        public void DungeonReady_WhenRunInit_TransitionsToRoomPlaying()
+        {
+            _gm.ChangeState(GameState.Hub);
+            _gm.ChangeState(GameState.RunInit);
+
+            EventCenter.Broadcast(GameEventType.DungeonReady, new DungeonReadyEvent());
+
+            Assert.AreEqual(GameState.RoomPlaying, _gm.CurrentState);
+            Assert.AreEqual(1f, Time.timeScale);
+        }
+
+        [Test]
+        public void DungeonReady_WhenNotRunInit_DoesNotChangeState()
+        {
+            _gm.ChangeState(GameState.Hub);
+
+            EventCenter.Broadcast(GameEventType.DungeonReady, new DungeonReadyEvent());
+
+            Assert.AreEqual(GameState.Hub, _gm.CurrentState);
+            Assert.AreEqual(1f, Time.timeScale);
+        }
+
         #endregion
 
         #region TimeScale
@@ -176,6 +202,26 @@ namespace RogueDungeon.Tests
             Assert.AreEqual(0f, Time.timeScale);
         }
 
+        [Test]
+        public void TimeScale_RewardSelect_Is1()
+        {
+            _gm.ChangeState(GameState.Hub);
+            _gm.ChangeState(GameState.RunInit);
+            _gm.ChangeState(GameState.RoomPlaying);
+            _gm.ChangeState(GameState.RoomClear);
+            _gm.ChangeState(GameState.RewardSelect);
+
+            Assert.AreEqual(1f, Time.timeScale);
+        }
+
         #endregion
+
+        private static void InvokePrivateNoArg(object instance, string methodName)
+        {
+            var method = instance.GetType().GetMethod(methodName,
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (method != null)
+                method.Invoke(instance, null);
+        }
     }
 }

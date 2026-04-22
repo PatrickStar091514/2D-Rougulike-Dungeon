@@ -9,6 +9,7 @@ namespace RogueDungeon.Rogue.Dungeon.View
         Enemy,      // 敌人生成点
         Item,       // 物品生成点
         NPC,        // NPC 生成点
-        Decoration  // 装饰物生成点
+        Decoration, // 装饰物生成点
+        Reward      // 奖励生成点
     }
 }

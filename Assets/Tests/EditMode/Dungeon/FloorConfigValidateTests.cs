@@ -8,7 +8,7 @@ namespace RogueDungeon.Tests.Dungeon
     {
         private FloorConfigSO CreateConfig(
             int gridWidth = 5, int gridHeight = 4, int targetRoomCount = 12,
-            int eliteCount = 1, int shopCount = 1, int eventCount = 1,
+            int eliteCount = 1, int eventCount = 1,
             float mergeRate = 0.3f, bool nullTemplates = false)
         {
             var config = ScriptableObject.CreateInstance<FloorConfigSO>();
@@ -19,7 +19,6 @@ namespace RogueDungeon.Tests.Dungeon
             SetField(config, "gridHeight", gridHeight);
             SetField(config, "targetRoomCount", targetRoomCount);
             SetField(config, "eliteCount", eliteCount);
-            SetField(config, "shopCount", shopCount);
             SetField(config, "eventCount", eventCount);
             SetField(config, "mergeRate", mergeRate);
 
@@ -71,7 +70,7 @@ namespace RogueDungeon.Tests.Dungeon
         [Test]
         public void Validate_TooManySpecialRooms_ReturnsFalse()
         {
-            var config = CreateConfig(targetRoomCount: 8, eliteCount: 3, shopCount: 2, eventCount: 2);
+            var config = CreateConfig(targetRoomCount: 8, eliteCount: 5, eventCount: 2);
             Assert.IsFalse(config.Validate());
         }
 

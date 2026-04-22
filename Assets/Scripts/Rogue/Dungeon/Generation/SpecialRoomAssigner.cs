@@ -6,7 +6,7 @@ using RogueDungeon.Rogue.Dungeon.Data;
 namespace RogueDungeon.Rogue.Dungeon.Generation
 {
     /// <summary>
-    /// 特殊房间分配器：根据规则为 Elite、Shop、Event 类型在生成树上找到合适位置
+    /// 特殊房间分配器：根据规则为 Elite、Event 类型在生成树上找到合适位置
     /// </summary>
     internal static class SpecialRoomAssigner
     {
@@ -16,14 +16,12 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
         /// <param name="nodes">节点字典（非合并的）</param>
         /// <param name="mainPath">主路径 Id 列表</param>
         /// <param name="eliteCount">精英房间数量</param>
-        /// <param name="shopCount">商店数量</param>
         /// <param name="eventCount">事件数量</param>
         /// <param name="rng">确定性随机源</param>
         public static void Assign(
             Dictionary<string, GraphNode> nodes,
             List<string> mainPath,
             int eliteCount,
-            int shopCount,
             int eventCount,
             SeededRandom rng,
             ISet<string> protectedNodeIds = null)
@@ -32,9 +30,6 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
 
             // Elite：主路径后半段 → 前半段 → 分支中 Normal 节点
             AssignElite(nodes, mainPath, mainPathSet, eliteCount, rng, protectedNodeIds);
-
-            // Shop：叶子节点（度==1）→ 度<=2 的分支节点
-            AssignShop(nodes, mainPathSet, shopCount, rng, protectedNodeIds);
 
             // Event：非主路径 Normal → 任意剩余 Normal
             AssignEvent(nodes, mainPathSet, eventCount, rng, protectedNodeIds);
@@ -88,43 +83,6 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
 
             if (assigned < count)
                 Debug.LogWarning($"[SpecialRoomAssigner] Elite 候选不足：需要 {count}，只分配了 {assigned}");
-        }
-
-        private static void AssignShop(
-            Dictionary<string, GraphNode> nodes,
-            HashSet<string> mainPathSet,
-            int count,
-            SeededRandom rng,
-            ISet<string> protectedNodeIds)
-        {
-            if (count <= 0) return;
-            int assigned = 0;
-
-            // 叶子节点（度==1）中的 Normal
-            var leaves = nodes.Keys
-                .Where(id => !nodes[id].IsMerged
-                    && nodes[id].RoomType == RoomType.Normal
-                    && (protectedNodeIds == null || !protectedNodeIds.Contains(id))
-                    && nodes[id].NeighborIds.Count(nid => nodes.ContainsKey(nid) && !nodes[nid].IsMerged) == 1)
-                .OrderBy(id => id).ToList();
-            rng.Shuffle(leaves);
-            assigned += PickAndAssign(leaves, nodes, RoomType.Shop, count - assigned);
-
-            if (assigned >= count) return;
-
-            // 度<=2 的分支节点
-            var lowDegree = nodes.Keys
-                .Where(id => !nodes[id].IsMerged
-                    && nodes[id].RoomType == RoomType.Normal
-                    && !mainPathSet.Contains(id)
-                    && (protectedNodeIds == null || !protectedNodeIds.Contains(id))
-                    && nodes[id].NeighborIds.Count(nid => nodes.ContainsKey(nid) && !nodes[nid].IsMerged) <= 2)
-                .OrderBy(id => id).ToList();
-            rng.Shuffle(lowDegree);
-            assigned += PickAndAssign(lowDegree, nodes, RoomType.Shop, count - assigned);
-
-            if (assigned < count)
-                Debug.LogWarning($"[SpecialRoomAssigner] Shop 候选不足：需要 {count}，只分配了 {assigned}");
         }
 
         private static void AssignEvent(

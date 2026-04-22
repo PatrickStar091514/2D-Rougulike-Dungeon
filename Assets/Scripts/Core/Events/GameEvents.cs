@@ -1,3 +1,5 @@
+using RogueDungeon.Core.Buff;
+
 namespace RogueDungeon.Core.Events
 {
     /// <summary>
@@ -70,5 +72,43 @@ namespace RogueDungeon.Core.Events
         public bool IsVictory;       // 是否胜利
         public int Floor;            // 到达层数
         public string RewardSummary; // 奖励摘要
+    }
+
+    /// <summary>
+    /// Buff 被应用事件 Payload
+    /// </summary>
+    public struct BuffAppliedEvent
+    {
+        public string BuffId;    // 应用的 Buff ID
+        public string SourceId;  // 来源标识
+        public int StackCount;   // 应用后的叠加层数
+    }
+
+    /// <summary>
+    /// Buff 过期移除事件 Payload
+    /// </summary>
+    public struct BuffExpiredEvent
+    {
+        public string BuffId;                    // 过期的 Buff ID
+        public Buff.DurationType Duration;       // 持续类型
+    }
+
+    /// <summary>
+    /// Buff 叠加层数变化事件 Payload
+    /// </summary>
+    public struct BuffStackChangedEvent
+    {
+        public string BuffId;  // Buff ID
+        public int OldStack;   // 变化前层数
+        public int NewStack;   // 变化后层数
+    }
+
+    /// <summary>
+    /// 奖励领取事件 Payload
+    /// </summary>
+    public struct RewardClaimedEvent
+    {
+        public string BuffId; // 领取的 Buff ID
+        public string RoomId; // 奖励所在房间 ID
     }
 }

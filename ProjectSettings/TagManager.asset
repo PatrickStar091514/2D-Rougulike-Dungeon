@@ -50,3 +50,12 @@ TagManager:
   - name: Door
     uniqueID: 85567707
     locked: 0
+  - name: Drop
+    uniqueID: 1804859795
+    locked: 0
+  - name: Player
+    uniqueID: 1976831581
+    locked: 0
+  - name: New Layer 6
+    uniqueID: 2306864985
+    locked: 0

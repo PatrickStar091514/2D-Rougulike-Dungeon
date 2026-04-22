@@ -91,7 +91,7 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
 
             SpecialRoomAssigner.Assign(
                 nodes, mainPath,
-                config.EliteCount, config.ShopCount, config.EventCount,
+                config.EliteCount, config.EventCount,
                 contentRng, protectedNodeIds);
 
             // Step 8: 普通房间合并

@@ -14,24 +14,41 @@ namespace RogueDungeon.Rogue.Dungeon.View
         [SerializeField] private DungeonViewManager _viewManager; // 视图管理器引用
 
         private string _previousRoomId; // 上一个房间 Id（用于 OnExit 调度）
+        private bool _missingViewManagerLogged; // 缺失引用错误是否已记录
 
         private void Awake()
         {
-            if (_viewManager == null)
-            {
-                Debug.LogError("[RoomBehaviorOrchestrator] viewManager 未赋值，组件已禁用");
-                enabled = false;
-            }
+            ValidateViewManager();
         }
 
         private void OnEnable()
         {
+            if (!ValidateViewManager()) return;
+
             EventCenter.AddListener<DungeonReadyEvent>(
                 GameEventType.DungeonReady, OnDungeonReady);
             EventCenter.AddListener<RoomEnteredEvent>(
                 GameEventType.RoomEntered, OnRoomEntered);
             EventCenter.AddListener<RoomClearedEvent>(
                 GameEventType.RoomCleared, OnRoomCleared);
+        }
+
+        private bool ValidateViewManager()
+        {
+            if (_viewManager != null)
+            {
+                _missingViewManagerLogged = false;
+                return true;
+            }
+
+            if (!_missingViewManagerLogged)
+            {
+                Debug.LogError("[RoomBehaviorOrchestrator] viewManager 未赋值，组件已禁用");
+                _missingViewManagerLogged = true;
+            }
+
+            enabled = false;
+            return false;
         }
 
         private void OnDisable()
