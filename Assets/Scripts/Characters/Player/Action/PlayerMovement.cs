@@ -17,7 +17,7 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask groundLayer;
 
     [Header("·­×ªÊôÐÔ")]
-    [SerializeField] private bool useMouseToFlip = false;
+    //[SerializeField] private bool useMouseToFlip = false;
     [SerializeField] private bool flipX = true;
     private bool isFacingRight = true;
 
