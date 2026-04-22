@@ -22,11 +22,20 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         input = GetComponent<PlayerInput>();
+        
         rb = GetComponent<Rigidbody2D>();
+        rb.gravityScale = 0f;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
         boxCollider = GetComponent<BoxCollider2D>();
 
         originalX = transform.localScale.x;
         originalY = transform.localScale.y;
+    }
+
+    private void FixedUpdate()
+    {
+        Movement();
     }
 
     // Update is called once per frame
@@ -43,10 +52,10 @@ public class PlayerMovement : MonoBehaviour
             FlipXDirection();
         }
         float yVelocity = speed * input.vertical;
-        if (yVelocity * direction < 0)
-        {
-            FlipYDirection();
-        }
+        //if (yVelocity * direction < 0)
+        //{
+        //    FlipYDirection();
+        //}
         rb.velocity = new Vector2(xVelocity, yVelocity);
     }
 
