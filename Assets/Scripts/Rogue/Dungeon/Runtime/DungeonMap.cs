@@ -95,8 +95,6 @@ namespace RogueDungeon.Rogue.Dungeon.Runtime
                     cellToNodeId[cell] = node.Id;
             }
 
-            EnsureBossMainlineNeighbor(nodeLookup, cellToNodeId, templateLookup, startId, bossId);
-
             // Build rooms with door connections (sorted for determinism)
             var rooms = new List<RoomInstance>();
             var sortedNodes = nodes.Where(n => !n.IsMerged).OrderBy(n => n.Id).ToList();
@@ -150,13 +148,11 @@ namespace RogueDungeon.Rogue.Dungeon.Runtime
                 var worldCell = node.Position + localSlot.CellOffset;
                 var neighborCell = worldCell + localSlot.Direction.ToVector2Int();
 
-                // Check if neighbor cell belongs to a tree-adjacent node
+                // Check if neighbor cell belongs to another room node
                 if (!cellToNodeId.TryGetValue(neighborCell, out var neighborNodeId))
                     continue;
                 if (neighborNodeId == node.Id)
                     continue; // Same room (multi-cell)
-                if (!node.NeighborIds.Contains(neighborNodeId))
-                    continue; // Not a tree neighbor
                 if (!nodeLookup.TryGetValue(neighborNodeId, out var neighborNode))
                     continue;
 
@@ -181,98 +177,6 @@ namespace RogueDungeon.Rogue.Dungeon.Runtime
             }
 
             return doors;
-        }
-
-        private static void EnsureBossMainlineNeighbor(
-            Dictionary<string, Generation.GraphNode> nodeLookup,
-            Dictionary<Vector2Int, string> cellToNodeId,
-            Dictionary<string, RoomTemplateSO> templateLookup,
-            string startId,
-            string bossId)
-        {
-            if (!nodeLookup.TryGetValue(bossId, out var bossNode))
-                return;
-
-            var adjacentCandidates = new HashSet<string>();
-            var dirs = new[] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
-            foreach (var bossCell in bossNode.Cells)
-            {
-                foreach (var dir in dirs)
-                {
-                    if (!cellToNodeId.TryGetValue(bossCell + dir, out var candidateId))
-                        continue;
-                    if (candidateId == bossId || !nodeLookup.ContainsKey(candidateId))
-                        continue;
-                    adjacentCandidates.Add(candidateId);
-                }
-            }
-
-            if (adjacentCandidates.Count == 0)
-                return;
-
-            var existingAdjacent = bossNode.NeighborIds
-                .Where(adjacentCandidates.Contains)
-                .Distinct()
-                .ToList();
-            var candidatePool = existingAdjacent.Count > 0 ? existingAdjacent : adjacentCandidates.ToList();
-            var startPos = nodeLookup.TryGetValue(startId, out var startNode) ? startNode.Position : Vector2Int.zero;
-
-            var selectedNeighborId = candidatePool
-                .OrderByDescending(id => HasMutualDoor(
-                    bossNode,
-                    nodeLookup[id],
-                    cellToNodeId,
-                    templateLookup))
-                .ThenBy(id => Vector2Int.Distance(nodeLookup[id].Position, startPos))
-                .ThenBy(id => id)
-                .First();
-
-            foreach (var node in nodeLookup.Values)
-                node.NeighborIds.Remove(bossId);
-
-            bossNode.NeighborIds.Clear();
-            bossNode.NeighborIds.Add(selectedNeighborId);
-
-            var selectedNode = nodeLookup[selectedNeighborId];
-            if (!selectedNode.NeighborIds.Contains(bossId))
-                selectedNode.NeighborIds.Add(bossId);
-        }
-
-        private static bool HasMutualDoor(
-            Generation.GraphNode node,
-            Generation.GraphNode neighborNode,
-            Dictionary<Vector2Int, string> cellToNodeId,
-            Dictionary<string, RoomTemplateSO> templateLookup)
-        {
-            RoomTemplateSO template = null;
-            if (node.TemplateId != null)
-                templateLookup.TryGetValue(node.TemplateId, out template);
-            if (template == null || template.DoorSlots == null)
-                return false;
-
-            RoomTemplateSO neighborTemplate = null;
-            if (neighborNode.TemplateId != null)
-                templateLookup.TryGetValue(neighborNode.TemplateId, out neighborTemplate);
-            if (neighborTemplate == null || neighborTemplate.DoorSlots == null)
-                return false;
-
-            foreach (var localSlot in template.DoorSlots)
-            {
-                var worldCell = node.Position + localSlot.CellOffset;
-                var neighborCell = worldCell + localSlot.Direction.ToVector2Int();
-                if (!cellToNodeId.TryGetValue(neighborCell, out var neighborId) || neighborId != neighborNode.Id)
-                    continue;
-
-                var expectedDirection = localSlot.Direction.Opposite();
-                var expectedOffset = neighborCell - neighborNode.Position;
-                foreach (var remoteSlot in neighborTemplate.DoorSlots)
-                {
-                    if (remoteSlot.CellOffset == expectedOffset && remoteSlot.Direction == expectedDirection)
-                        return true;
-                }
-            }
-
-            return false;
         }
 
         private static void EnforceBossSingleDoor(
@@ -343,6 +247,46 @@ namespace RogueDungeon.Rogue.Dungeon.Runtime
                 if (replacements.TryGetValue(roomId, out var updated))
                     rooms[i] = updated;
             }
+
+            if (!IsRoomGraphConnected(rooms, startId))
+            {
+                // 连通优先：若单门化后断联，回滚为修改前的门图。
+                for (int i = 0; i < rooms.Count; i++)
+                {
+                    var originalId = rooms[i].Id;
+                    if (roomLookup.TryGetValue(originalId, out var originalRoom))
+                        rooms[i] = originalRoom;
+                }
+            }
+        }
+
+        private static bool IsRoomGraphConnected(List<RoomInstance> rooms, string preferredStartId)
+        {
+            if (rooms == null || rooms.Count == 0)
+                return true;
+
+            var lookup = rooms.ToDictionary(r => r.Id);
+            string startId = lookup.ContainsKey(preferredStartId)
+                ? preferredStartId
+                : rooms[0].Id;
+
+            var visited = new HashSet<string> { startId };
+            var queue = new Queue<string>();
+            queue.Enqueue(startId);
+
+            while (queue.Count > 0)
+            {
+                var id = queue.Dequeue();
+                var room = lookup[id];
+                foreach (var door in room.Doors)
+                {
+                    if (!lookup.ContainsKey(door.ConnectedRoomId)) continue;
+                    if (visited.Add(door.ConnectedRoomId))
+                        queue.Enqueue(door.ConnectedRoomId);
+                }
+            }
+
+            return visited.Count == rooms.Count;
         }
 
         private static RoomInstance CloneWithDoors(RoomInstance room, List<DoorConnection> doors)

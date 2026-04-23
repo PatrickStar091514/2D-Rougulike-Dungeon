@@ -62,7 +62,6 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
 
             // Step 6: 合并 Boss 房间
             RoomMerger.MergeBoss(nodes, bossAnchorId, bossCells);
-            EnsureSingleBossConnection(nodes, startId, bossAnchorId);
 
             // Step 7: 查找主路径 + 分配特殊房间
             var mainPath = SpanningTreeBuilder.FindMainPath(nodes, startId, bossAnchorId);
@@ -160,65 +159,5 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
             };
         }
 
-        private static void EnsureSingleBossConnection(
-            Dictionary<string, GraphNode> nodes,
-            string startId,
-            string bossAnchorId)
-        {
-            if (!nodes.TryGetValue(bossAnchorId, out var bossNode) || bossNode.IsMerged)
-                return;
-
-            var activeNodes = nodes.Values.Where(n => !n.IsMerged).ToList();
-            var cellToNodeId = new Dictionary<Vector2Int, string>();
-            foreach (var node in activeNodes)
-            {
-                foreach (var cell in node.Cells)
-                    cellToNodeId[cell] = node.Id;
-            }
-
-            var adjacentCandidates = new HashSet<string>();
-            var dirs = new[] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
-            foreach (var bossCell in bossNode.Cells)
-            {
-                foreach (var dir in dirs)
-                {
-                    if (!cellToNodeId.TryGetValue(bossCell + dir, out var candidateId))
-                        continue;
-                    if (candidateId == bossAnchorId)
-                        continue;
-                    if (nodes[candidateId].IsMerged)
-                        continue;
-                    adjacentCandidates.Add(candidateId);
-                }
-            }
-
-            if (adjacentCandidates.Count == 0)
-            {
-                Debug.LogWarning($"[DungeonGenerator] Boss {bossAnchorId} 未找到可连接的相邻房间");
-                return;
-            }
-
-            var existingAdjacent = bossNode.NeighborIds
-                .Where(adjacentCandidates.Contains)
-                .Distinct()
-                .ToList();
-
-            var startPos = nodes.TryGetValue(startId, out var startNode) ? startNode.Position : Vector2Int.zero;
-            var selectionPool = existingAdjacent.Count > 0 ? existingAdjacent : adjacentCandidates.ToList();
-            var selectedNeighborId = selectionPool
-                .OrderBy(id => Vector2Int.Distance(nodes[id].Position, startPos))
-                .ThenBy(id => id)
-                .First();
-
-            foreach (var node in activeNodes)
-                node.NeighborIds.Remove(bossAnchorId);
-
-            bossNode.NeighborIds.Clear();
-            bossNode.NeighborIds.Add(selectedNeighborId);
-
-            var selectedNode = nodes[selectedNeighborId];
-            if (!selectedNode.NeighborIds.Contains(bossAnchorId))
-                selectedNode.NeighborIds.Add(bossAnchorId);
-        }
     }
 }
