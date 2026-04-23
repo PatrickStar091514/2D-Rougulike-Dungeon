@@ -46,15 +46,14 @@ namespace RogueDungeon.Debugging
         private void FixedUpdate()
         {
             if (_rb == null) return;
-            var delta = _moveInput * moveSpeed * Time.fixedDeltaTime;
-            if (delta.sqrMagnitude <= 0f)
+            if (_moveInput.sqrMagnitude <= 0f)
             {
                 _rb.velocity = Vector2.zero;
                 return;
             }
 
-            transform.position += new Vector3(delta.x, delta.y, 0f);
-            _rb.position = new Vector2(transform.position.x, transform.position.y);
+            var delta = _moveInput * moveSpeed * Time.fixedDeltaTime;
+            _rb.MovePosition(_rb.position + delta);
         }
 
         private void OnDisable()

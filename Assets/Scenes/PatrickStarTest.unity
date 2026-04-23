@@ -1265,7 +1265,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 8
+  orthographic size: 6
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -1310,7 +1310,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _followTarget: {fileID: 2141447968}
   _panDuration: 0.4
-  _orthographicSize: 8
+  _orthographicSize: 6
 --- !u!1 &2141447965
 GameObject:
   m_ObjectHideFlags: 0
@@ -1445,7 +1445,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f1554573ee1113439d149caf394b5b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 6
+  moveSpeed: 3
   ensureVisible: 1
   debugColor: {r: 0, g: 1, b: 1, a: 1}
 --- !u!212 &2141447971
