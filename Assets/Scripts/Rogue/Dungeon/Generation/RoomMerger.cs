@@ -57,6 +57,8 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
             var candidates = nodes.Keys
                 .Where(id => !nodes[id].IsMerged
                     && nodes[id].RoomType == RoomType.Normal
+                    && nodes[id].RoomShape == RoomShape.Single
+                    && nodes[id].Cells.Count == 1
                     && (protectedNodeIds == null || !protectedNodeIds.Contains(id)))
                 .OrderBy(id => id).ToList();
             rng.Shuffle(candidates);
@@ -148,7 +150,10 @@ namespace RogueDungeon.Rogue.Dungeon.Generation
                 if (protectedNodeIds != null && protectedNodeIds.Contains(targetId))
                     return null;
                 var targetNode = nodes[targetId];
-                if (targetNode.IsMerged || targetNode.RoomType != RoomType.Normal)
+                if (targetNode.IsMerged
+                    || targetNode.RoomType != RoomType.Normal
+                    || targetNode.RoomShape != RoomShape.Single
+                    || targetNode.Cells.Count != 1)
                     return null;
                 absorbIds.Add(targetId);
             }

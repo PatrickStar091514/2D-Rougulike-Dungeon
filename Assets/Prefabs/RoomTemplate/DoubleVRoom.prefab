@@ -262,12 +262,12 @@ GameObject:
   m_Component:
   - component: {fileID: 4666859516371345886}
   m_Layer: 0
-  m_Name: DoorSIot00E
+  m_Name: DoorSlot00E
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4666859516371345886
 Transform:
   m_ObjectHideFlags: 0
@@ -701,12 +701,12 @@ GameObject:
   m_Component:
   - component: {fileID: 6415354872870517410}
   m_Layer: 0
-  m_Name: DoorSIot00W
+  m_Name: DoorSlot00W
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6415354872870517410
 Transform:
   m_ObjectHideFlags: 0
@@ -4907,12 +4907,12 @@ GameObject:
   m_Component:
   - component: {fileID: 2622170244893327228}
   m_Layer: 0
-  m_Name: DoorSIot01N
+  m_Name: DoorSlot01N
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2622170244893327228
 Transform:
   m_ObjectHideFlags: 0
@@ -4940,12 +4940,12 @@ GameObject:
   m_Component:
   - component: {fileID: 8768262293916028259}
   m_Layer: 0
-  m_Name: DoorSIot00S
+  m_Name: DoorSlot00S
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8768262293916028259
 Transform:
   m_ObjectHideFlags: 0
@@ -6840,12 +6840,12 @@ GameObject:
   m_Component:
   - component: {fileID: 923595179065693230}
   m_Layer: 0
-  m_Name: DoorSIot01W
+  m_Name: DoorSlot01W
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &923595179065693230
 Transform:
   m_ObjectHideFlags: 0
@@ -6873,12 +6873,12 @@ GameObject:
   m_Component:
   - component: {fileID: 5134967581115532067}
   m_Layer: 0
-  m_Name: DoorSIot01E
+  m_Name: DoorSlot01E
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5134967581115532067
 Transform:
   m_ObjectHideFlags: 0

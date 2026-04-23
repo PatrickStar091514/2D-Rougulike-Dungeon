@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   templateId: Single_Room
   shape: 0
-  allowedTypes: 0000000001000000
+  allowedTypes: 00000000010000000200000004000000
   doorSlots:
   - cellOffset: {x: 0, y: 0}
     direction: 0

@@ -15,26 +15,26 @@ MonoBehaviour:
   gridWidth: 4
   gridHeight: 5
   targetRoomCount: 16
-  eliteCount: 2
-  eventCount: 2
-  mergeRate: 0.4
+  eliteCount: 1
+  eventCount: 1
+  mergeRate: 0.95
   shapeWeights:
   - shape: 0
-    weight: 0.25
+    weight: 0.1
   - shape: 3
     weight: 0.05
   - shape: 6
-    weight: 0.1
+    weight: 0.25
   - shape: 4
-    weight: 0.1
+    weight: 0.25
   - shape: 7
-    weight: 0.1
+    weight: 0.25
   - shape: 5
-    weight: 0.1
+    weight: 0.25
   - shape: 2
-    weight: 0.15
+    weight: 0.175
   - shape: 1
-    weight: 0.15
+    weight: 0.175
   templates:
   - {fileID: 11400000, guid: f16f08db7ae224b60a1eb747a915329d, type: 2}
   - {fileID: 11400000, guid: 654f4e70869ca490a9f6c3a2fd3dddb1, type: 2}

@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 6045727140650898241}
   m_Layer: 0
-  m_Name: DoorSIot01E
+  m_Name: DoorSlot01E
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6045727140650898241
 Transform:
   m_ObjectHideFlags: 0
@@ -43,12 +43,12 @@ GameObject:
   m_Component:
   - component: {fileID: 4997886405135412403}
   m_Layer: 0
-  m_Name: DoorSIot00W
+  m_Name: DoorSlot00W
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4997886405135412403
 Transform:
   m_ObjectHideFlags: 0
@@ -657,12 +657,12 @@ GameObject:
   m_Component:
   - component: {fileID: 3038762745392274904}
   m_Layer: 0
-  m_Name: DoorSIot00S
+  m_Name: DoorSlot00S
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3038762745392274904
 Transform:
   m_ObjectHideFlags: 0
@@ -1906,12 +1906,12 @@ GameObject:
   m_Component:
   - component: {fileID: 3853403176048811202}
   m_Layer: 0
-  m_Name: DoorSIot01W
+  m_Name: DoorSlot01W
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3853403176048811202
 Transform:
   m_ObjectHideFlags: 0
@@ -4209,12 +4209,12 @@ GameObject:
   m_Component:
   - component: {fileID: 6591914311735790360}
   m_Layer: 0
-  m_Name: DoorSIot10S
+  m_Name: DoorSlot10S
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6591914311735790360
 Transform:
   m_ObjectHideFlags: 0
@@ -4242,12 +4242,12 @@ GameObject:
   m_Component:
   - component: {fileID: 7784361575453416279}
   m_Layer: 0
-  m_Name: DoorSIot01N
+  m_Name: DoorSlot01N
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7784361575453416279
 Transform:
   m_ObjectHideFlags: 0
@@ -4275,12 +4275,12 @@ GameObject:
   m_Component:
   - component: {fileID: 7746452256471169258}
   m_Layer: 0
-  m_Name: DoorSIot10N
+  m_Name: DoorSlot10N
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7746452256471169258
 Transform:
   m_ObjectHideFlags: 0
@@ -4714,12 +4714,12 @@ GameObject:
   m_Component:
   - component: {fileID: 660905327407587657}
   m_Layer: 0
-  m_Name: DoorSIot10E
+  m_Name: DoorSlot10E
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &660905327407587657
 Transform:
   m_ObjectHideFlags: 0

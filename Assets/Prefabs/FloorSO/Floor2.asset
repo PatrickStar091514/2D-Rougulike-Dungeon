@@ -17,7 +17,7 @@ MonoBehaviour:
   targetRoomCount: 16
   eliteCount: 2
   eventCount: 2
-  mergeRate: 0.4
+  mergeRate: 0.9
   shapeWeights:
   - shape: 0
     weight: 0.35

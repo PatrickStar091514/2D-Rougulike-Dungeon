@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 2287503187591685645}
   m_Layer: 0
-  m_Name: DoorSIot10E
+  m_Name: DoorSlot10E
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2287503187591685645
 Transform:
   m_ObjectHideFlags: 0
@@ -415,12 +415,12 @@ GameObject:
   m_Component:
   - component: {fileID: 1152501400453630973}
   m_Layer: 0
-  m_Name: DoorSIot10S
+  m_Name: DoorSlot10S
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1152501400453630973
 Transform:
   m_ObjectHideFlags: 0
@@ -449,7 +449,7 @@ GameObject:
   - component: {fileID: 8114940919257810871}
   - component: {fileID: 4443091244605358831}
   m_Layer: 0
-  m_Name: DOorTrigger
+  m_Name: DoorTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -931,12 +931,12 @@ GameObject:
   m_Component:
   - component: {fileID: 6278756043815975909}
   m_Layer: 0
-  m_Name: DoorSIot01N
+  m_Name: DoorSlot01N
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6278756043815975909
 Transform:
   m_ObjectHideFlags: 0
@@ -964,12 +964,12 @@ GameObject:
   m_Component:
   - component: {fileID: 7755978474324303915}
   m_Layer: 0
-  m_Name: DoorSIot00S
+  m_Name: DoorSlot00S
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7755978474324303915
 Transform:
   m_ObjectHideFlags: 0
@@ -2533,7 +2533,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 18
-      m_TileSpriteIndex: 22
+      m_TileSpriteIndex: 30
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -2543,7 +2543,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 19
-      m_TileSpriteIndex: 19
+      m_TileSpriteIndex: 23
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -2773,7 +2773,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 20
-      m_TileSpriteIndex: 20
+      m_TileSpriteIndex: 22
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -2950,16 +2950,16 @@ Tilemap:
     m_Data: {fileID: -842582663, guid: 2a13f9c11f6f52740b796f723d24ac4a, type: 3}
   - m_RefCount: 3
     m_Data: {fileID: -142714869, guid: 2a13f9c11f6f52740b796f723d24ac4a, type: 3}
-  - m_RefCount: 1
-    m_Data: {fileID: 558957791, guid: 2a13f9c11f6f52740b796f723d24ac4a, type: 3}
-  - m_RefCount: 1
-    m_Data: {fileID: 1210664842, guid: 2a13f9c11f6f52740b796f723d24ac4a, type: 3}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 1
     m_Data: {fileID: 1196402594, guid: 2a13f9c11f6f52740b796f723d24ac4a, type: 3}
   - m_RefCount: 1
-    m_Data: {fileID: 464517359, guid: 2a13f9c11f6f52740b796f723d24ac4a, type: 3}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
+    m_Data: {fileID: 1210664842, guid: 2a13f9c11f6f52740b796f723d24ac4a, type: 3}
+  - m_RefCount: 1
+    m_Data: {fileID: 558957791, guid: 2a13f9c11f6f52740b796f723d24ac4a, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: 1041954775, guid: 2a13f9c11f6f52740b796f723d24ac4a, type: 3}
   - m_RefCount: 1
@@ -2972,8 +2972,8 @@ Tilemap:
     m_Data: {fileID: -2091665888, guid: 2a13f9c11f6f52740b796f723d24ac4a, type: 3}
   - m_RefCount: 10
     m_Data: {fileID: 1434722060, guid: 2a13f9c11f6f52740b796f723d24ac4a, type: 3}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
+  - m_RefCount: 1
+    m_Data: {fileID: 464517359, guid: 2a13f9c11f6f52740b796f723d24ac4a, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: -1721118402, guid: 2a13f9c11f6f52740b796f723d24ac4a, type: 3}
   - m_RefCount: 1
@@ -3214,12 +3214,12 @@ GameObject:
   m_Component:
   - component: {fileID: 7607953279365879893}
   m_Layer: 0
-  m_Name: DoorSIot01W
+  m_Name: DoorSlot01W
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7607953279365879893
 Transform:
   m_ObjectHideFlags: 0
@@ -3247,12 +3247,12 @@ GameObject:
   m_Component:
   - component: {fileID: 7092749987341391729}
   m_Layer: 0
-  m_Name: DoorSIot11N
+  m_Name: DoorSlot11N
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7092749987341391729
 Transform:
   m_ObjectHideFlags: 0
@@ -3280,12 +3280,12 @@ GameObject:
   m_Component:
   - component: {fileID: 4950296502312599456}
   m_Layer: 0
-  m_Name: DoorSIot00W
+  m_Name: DoorSlot00W
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4950296502312599456
 Transform:
   m_ObjectHideFlags: 0
@@ -9282,7 +9282,7 @@ GameObject:
   - component: {fileID: 2182737419035706852}
   - component: {fileID: 8651469872492530496}
   m_Layer: 0
-  m_Name: DoorTriger
+  m_Name: DoorTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9974,12 +9974,12 @@ GameObject:
   m_Component:
   - component: {fileID: 8996420882109206739}
   m_Layer: 0
-  m_Name: DoorSIot11E
+  m_Name: DoorSlot11E
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8996420882109206739
 Transform:
   m_ObjectHideFlags: 0
