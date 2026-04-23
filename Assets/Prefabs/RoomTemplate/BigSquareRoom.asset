@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   templateId: BigSquareRoom
   shape: 3
-  allowedTypes: 01000000
+  allowedTypes: 0100000005000000
   doorSlots:
   - cellOffset: {x: 0, y: 0}
     direction: 3

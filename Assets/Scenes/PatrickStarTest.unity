@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89f4d764a6a67164cbc9e6ac1502feb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cellWorldSize: 10
+  _cellWorldSize: 12
   _debugRoomViewCount: 0
 --- !u!4 &350701321
 Transform:
@@ -616,7 +616,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   floorConfigs:
-  - {fileID: 11400000, guid: 91f6210aea2d1aa4691530feb203c772, type: 2}
+  - {fileID: 11400000, guid: 88b900d21a4ff21479b2ca9c5fc1d271, type: 2}
   _debugCurrentRoomId: 
   _debugRoomCount: 0
   _debugStartRoomId: 
