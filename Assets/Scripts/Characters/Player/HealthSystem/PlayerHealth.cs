@@ -1,15 +1,43 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+
 
 public class PlayerHealth : MonoBehaviour
 {
-    private static float health = 5.0f;
-    public static float Health
+    public static PlayerHealth Instance;
+
+    private void Awake()
     {
-        get => health;
-        set => health = Mathf.Clamp(value, 0f, 10f);
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        Init();
     }
 
+    public TMP_Text hpText;
 
+    public int maxHP = 10;
+    private int health;
+
+    public int Health
+    {
+        get
+        {
+            return health;
+        }
+        set
+        {
+            health = value;
+            hpText.text = Health + "/" + maxHP;
+        }
+
+    }
+
+    public void Init()
+    {
+        Health = maxHP;
+    }
 }
