@@ -5,23 +5,18 @@ using UnityEngine.UI;
 
 public class HealthBar : MonoBehaviour
 {
-    [SerializeField] private const int HEART_ROW_SIZE = 8;
-    [SerializeField] private const int HEART_OFFSET = 32;
-
-    [SerializeField] private Sprite[] heartSprites;
-    [SerializeField] private GameObject heartPrefab;
-    [SerializeField] private RectTransform healthBar;
-
-
+    public Slider hpBar;
     // Start is called before the first frame update
     void Start()
     {
-        
+        hpBar = GameObject.Find("Slider").GetComponent<Slider>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        hpBar.value = (int) PlayerHealth.Instance.maxHP - (PlayerHealth.Instance.maxHP - PlayerHealth.Instance.Health);
+        //hpBar.value = (int) PlayerHealth.Instance.Health / PlayerHealth.Instance.maxHP * 100;
     }
+
 }
