@@ -114,6 +114,7 @@ namespace RogueDungeon.Rogue.Dungeon.Reward
         private void OnRoomEntered(RoomEnteredEvent evt)
         {
             if (evt.Room == null || evt.Room.Type != RoomType.Event) return;
+            if (evt.Room.Cleared) return;
             EnsureRewardWave(evt.Room, 3, RewardSource.ThreeChoice, CompletionState.ToRoomPlaying, false);
         }
 
@@ -290,7 +291,10 @@ namespace RogueDungeon.Rogue.Dungeon.Reward
             {
                 var room = DungeonManager.Instance.CurrentMap.GetRoom(_debugActiveRoomId);
                 if (room != null)
+                {
                     room.Cleared = true;
+                    EventCenter.Broadcast(GameEventType.RoomCleared, new RoomClearedEvent { RoomId = _debugActiveRoomId });
+                }
             }
 
             EventCenter.Broadcast(GameEventType.RewardClaimed, new RewardClaimedEvent
