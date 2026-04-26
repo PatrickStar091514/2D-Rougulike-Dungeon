@@ -89,10 +89,8 @@ namespace RogueDungeon.Data.Runtime
                 _currentRun = new RunState
                 {
                     RunId = System.Guid.NewGuid().ToString("N"),
-                    // Seed = _randomSeed != 0 ? Random.Range(int.MinValue, int.MaxValue) : _randomSeed
-                    Seed = Random.Range(int.MinValue, int.MaxValue)
+                    Seed = _randomSeed != 0 ? _randomSeed : Random.Range(int.MinValue, int.MaxValue)
                 };
-                _randomSeed = _currentRun.Seed; // 同步随机种子到 Inspector 显示
                 Debug.Log($"[RunManager] Run 已创建: {_currentRun.RunId}, Seed: {_currentRun.Seed}");
             }
 
@@ -133,6 +131,7 @@ namespace RogueDungeon.Data.Runtime
         private void ReleaseRun()
         {
             _currentRun = null;
+            SaveManager.DeleteSave(RunSaveKey);
         }
     }
 }
