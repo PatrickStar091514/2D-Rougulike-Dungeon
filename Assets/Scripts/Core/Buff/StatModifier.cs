@@ -1,7 +1,6 @@
 using System;
-using RogueDungeon.Core.Buff;
 
-namespace RogueDungeon.Data.Config
+namespace RogueDungeon.Core.Buff
 {
     /// <summary>
     /// 属性修改器，描述对单个属性的一次修改（属性类型 + 修改方式 + 数值）

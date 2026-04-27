@@ -75,13 +75,14 @@ crashlytics-build.properties
 /[Aa]sset/[Ss]creenshots/
 /[Aa]ssets/[Ss]creenshots/
 
-# Copilot / ClaudeCode / MCP user-specific configs - ignore to avoid committing local CLI configs
+# Copilot / ClaudeCode / Codex / MCP user-specific configs - ignore to avoid committing local CLI configs
 .copilot/
 **/.copilot/
 mcp-config.json
 **/mcp-config.json
 *.mcp-config.json
 .claude/
+.codex/
 
 # 自动生成的 commit/PR 内容文件
 commit-and-pr.md

@@ -177,7 +177,7 @@ namespace RogueDungeon.Data.Runtime
 
             if (config.Duration == DurationType.Instant || (config.Duration == DurationType.Timed && config.DurationValue <= 0f))
             {
-                BroadcastApplied(config.BuffId, sourceId, 1);
+                BroadcastApplied(config, sourceId, 1);
                 return true;
             }
 
@@ -195,7 +195,7 @@ namespace RogueDungeon.Data.Runtime
             };
 
             _activeBuffs.Add(instance);
-            BroadcastApplied(config.BuffId, sourceId, instance.StackCount);
+            BroadcastApplied(config, sourceId, instance.StackCount);
             return true;
         }
 
@@ -215,7 +215,7 @@ namespace RogueDungeon.Data.Runtime
                 _activeBuffs.RemoveAt(i);
                 var config = GetConfig(buffId);
                 var duration = config != null ? config.Duration : DurationType.Permanent;
-                BroadcastExpired(buffId, duration);
+                BroadcastExpired(config);
                 return true;
             }
 
@@ -356,9 +356,9 @@ namespace RogueDungeon.Data.Runtime
             existing.SourceId = sourceId;
 
             if (existing.StackCount != oldStack)
-                BroadcastStackChanged(config.BuffId, oldStack, existing.StackCount);
+                BroadcastStackChanged(config, oldStack, existing.StackCount);
 
-            BroadcastApplied(config.BuffId, sourceId, existing.StackCount);
+            BroadcastApplied(config, sourceId, existing.StackCount);
             return true;
         }
 
@@ -374,7 +374,7 @@ namespace RogueDungeon.Data.Runtime
                 if (buff.RemainingTime > 0f) continue;
 
                 _activeBuffs.RemoveAt(i);
-                BroadcastExpired(buff.BuffId, DurationType.Timed);
+                BroadcastExpired(config);
             }
         }
 
@@ -392,7 +392,7 @@ namespace RogueDungeon.Data.Runtime
                 if (buff.RemainingRooms > 0) continue;
 
                 _activeBuffs.RemoveAt(i);
-                BroadcastExpired(buff.BuffId, DurationType.RoomScoped);
+                BroadcastExpired(config);
             }
         }
 
@@ -401,30 +401,29 @@ namespace RogueDungeon.Data.Runtime
             return buffPool != null ? buffPool.FindByBuffId(buffId) : null;
         }
 
-        private static void BroadcastApplied(string buffId, string sourceId, int stackCount)
+        private static void BroadcastApplied(BuffConfigSO config, string sourceId, int stackCount)
         {
             EventCenter.Broadcast(GameEventType.BuffApplied, new BuffAppliedEvent
             {
-                BuffId = buffId,
+                Snapshot = config.ToSnapshot(),
                 SourceId = sourceId,
                 StackCount = stackCount
             });
         }
 
-        private static void BroadcastExpired(string buffId, DurationType duration)
+        private static void BroadcastExpired(BuffConfigSO config)
         {
             EventCenter.Broadcast(GameEventType.BuffExpired, new BuffExpiredEvent
             {
-                BuffId = buffId,
-                Duration = duration
+                Snapshot = config.ToSnapshot()
             });
         }
 
-        private static void BroadcastStackChanged(string buffId, int oldStack, int newStack)
+        private static void BroadcastStackChanged(BuffConfigSO config, int oldStack, int newStack)
         {
             EventCenter.Broadcast(GameEventType.BuffStackChanged, new BuffStackChangedEvent
             {
-                BuffId = buffId,
+                Snapshot = config.ToSnapshot(),
                 OldStack = oldStack,
                 NewStack = newStack
             });
