@@ -79,9 +79,9 @@ namespace RogueDungeon.Core.Events
     /// </summary>
     public struct BuffAppliedEvent
     {
-        public string BuffId;    // 应用的 Buff ID
-        public string SourceId;  // 来源标识
-        public int StackCount;   // 应用后的叠加层数
+        public BuffSnapshot Snapshot;  // Buff 运行时快照（自包含，消费者无需反向查找）
+        public string SourceId;        // 来源标识
+        public int StackCount;         // 应用后的叠加层数
     }
 
     /// <summary>
@@ -89,8 +89,7 @@ namespace RogueDungeon.Core.Events
     /// </summary>
     public struct BuffExpiredEvent
     {
-        public string BuffId;                    // 过期的 Buff ID
-        public Buff.DurationType Duration;       // 持续类型
+        public BuffSnapshot Snapshot; // Buff 运行时快照
     }
 
     /// <summary>
@@ -98,9 +97,9 @@ namespace RogueDungeon.Core.Events
     /// </summary>
     public struct BuffStackChangedEvent
     {
-        public string BuffId;  // Buff ID
-        public int OldStack;   // 变化前层数
-        public int NewStack;   // 变化后层数
+        public BuffSnapshot Snapshot; // Buff 运行时快照
+        public int OldStack;          // 变化前层数
+        public int NewStack;          // 变化后层数
     }
 
     /// <summary>
@@ -108,7 +107,7 @@ namespace RogueDungeon.Core.Events
     /// </summary>
     public struct RewardClaimedEvent
     {
-        public string BuffId; // 领取的 Buff ID
-        public string RoomId; // 奖励所在房间 ID
+        public BuffSnapshot Snapshot; // Buff 运行时快照
+        public string RoomId;         // 奖励所在房间 ID
     }
 }

@@ -42,5 +42,27 @@ namespace RogueDungeon.Data.Config
         public float DropSpriteScale => Mathf.Max(0.01f, dropSpriteScale);
         public float DropColliderRadius => Mathf.Max(0.01f, dropColliderRadius);
         public StatModifier[] Modifiers => modifiers;
+
+        /// <summary>
+        /// 从当前配置创建运行时快照，供事件 Payload 传递。
+        /// </summary>
+        public BuffSnapshot ToSnapshot()
+        {
+            return new BuffSnapshot
+            {
+                BuffId = BuffId,
+                DisplayName = DisplayName,
+                Description = Description,
+                Rarity = Rarity,
+                Duration = Duration,
+                DurationValue = DurationValue,
+                DecayRate = DecayRate,
+                MaxStack = MaxStack,
+                Modifiers = Modifiers,
+                DropSortingLayer = DropSortingLayer,
+                DropSpriteScale = DropSpriteScale,
+                DropColliderRadius = DropColliderRadius
+            };
+        }
     }
 }

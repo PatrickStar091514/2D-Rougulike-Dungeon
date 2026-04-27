@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using RogueDungeon.Core;
+using RogueDungeon.Core.Buff;
 using RogueDungeon.Core.Events;
 using RogueDungeon.Core.Pool;
 using RogueDungeon.Data.Config;
 using RogueDungeon.Data.Runtime;
 using RogueDungeon.Rogue.Dungeon.Data;
+using RogueDungeon.Rogue.Dungeon.Generation;
 using RogueDungeon.Rogue.Dungeon.Generation;
 using RogueDungeon.Rogue.Dungeon.Runtime;
 using RogueDungeon.Rogue.Dungeon.View;
@@ -39,6 +41,21 @@ namespace RogueDungeon.Rogue.Dungeon.Reward
         [SerializeField] private BuffPoolSO buffPool; // 全局奖励池
         [SerializeField] private GameObject buffDropPrefab; // Buff 掉落预制体
 
+        [Header("掉落生成布局")]
+        [SerializeField] private float fallbackSpawnSpacing = 1.5f;
+        [SerializeField] private float fallbackSpawnYOffset = 0f;
+
+        [Header("Cell Spawn")]
+        [SerializeField] private bool enableCellSpawn = true;
+        [Min(0.5f)]
+        [SerializeField] private float minDropDistance = 1.5f;
+        [Min(0f)]
+        [SerializeField] private float playerAvoidRadius = 1f;
+        [Min(1)]
+        [SerializeField] private int maxPlacementAttempts = 30;
+        [Min(0f)]
+        [SerializeField] private float cellEdgePadding = 0.5f;
+
         [Header("Runtime Debug")]
         [SerializeField] private string _debugActiveRoomId; // 当前奖励房间
         [SerializeField] private int _debugDropCount; // 当前活跃掉落数量
@@ -58,7 +75,6 @@ namespace RogueDungeon.Rogue.Dungeon.Reward
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            EnsureBuffManagerReady();
             SceneManager.sceneLoaded += OnSceneLoaded;
             RegisterEvents();
         }
@@ -135,6 +151,8 @@ namespace RogueDungeon.Rogue.Dungeon.Reward
                 Debug.LogWarning("[RewardSpawner] 缺少必要配置，无法生成奖励");
                 return;
             }
+
+            EnsureBuffManagerReady();
 
             var run = RunManager.Instance?.CurrentRun;
             if (run == null)
@@ -218,7 +236,7 @@ namespace RogueDungeon.Rogue.Dungeon.Reward
         {
             ReleaseAllDrops();
 
-            var positions = ResolveSpawnPositions(room.Id, offeredBuffIds.Count);
+            var positions = ResolveSpawnPositions(room, offeredBuffIds.Count);
             for (int i = 0; i < offeredBuffIds.Count; i++)
             {
                 string buffId = offeredBuffIds[i];
@@ -242,14 +260,8 @@ namespace RogueDungeon.Rogue.Dungeon.Reward
                 }
 
                 var config = buffPool.FindByBuffId(buffId);
-                drop.Init(
-                    buffId,
-                    config != null ? config.Icon : null,
-                    null,
-                    OnDropPicked,
-                    config != null ? config.DropSortingLayer : "Drop",
-                    config != null ? config.DropSpriteScale : 1f,
-                    config != null ? config.DropColliderRadius : 0.5f);
+                var snapshot = config?.ToSnapshot();
+                drop.Init(snapshot, config != null ? config.Icon : null, null, OnDropPicked);
                 _activeDrops.Add(drop);
             }
 
@@ -297,9 +309,10 @@ namespace RogueDungeon.Rogue.Dungeon.Reward
                 }
             }
 
+            var rewardConfig = buffPool?.FindByBuffId(picked.BuffId);
             EventCenter.Broadcast(GameEventType.RewardClaimed, new RewardClaimedEvent
             {
-                BuffId = picked.BuffId,
+                Snapshot = rewardConfig?.ToSnapshot(),
                 RoomId = _debugActiveRoomId
             });
 
@@ -330,6 +343,110 @@ namespace RogueDungeon.Rogue.Dungeon.Reward
             }
         }
 
+        /// <summary>
+        /// 获取玩家当前位置（tag="Player"），未找到返回 null。
+        /// </summary>
+        private static Vector3? GetPlayerPosition()
+        {
+            var player = GameObject.FindWithTag("Player");
+            return player != null ? player.transform.position : (Vector3?)null;
+        }
+
+        /// <summary>
+        /// 在房间的 Cell 中随机生成不重叠的掉落位置，并避开玩家。
+        /// </summary>
+        private List<Vector3> GenerateCellSpawnPositions(
+            RoomInstance room, int count, SeededRandom rng, Vector3? playerPos)
+        {
+            // 每个 cell 转为世界空间 Rect（内缩 cellEdgePadding）
+            var cellRects = new List<Rect>(room.Cells.Count);
+            for (int i = 0; i < room.Cells.Count; i++)
+            {
+                Rect r = CellToWorldRect(room.Cells[i]);
+                float pad = Mathf.Min(cellEdgePadding, r.width * 0.45f);
+                cellRects.Add(new Rect(r.x + pad, r.y + pad, r.width - pad * 2f, r.height - pad * 2f));
+            }
+
+            if (cellRects.Count == 0) return new List<Vector3>();
+
+            // Phase 1: 要求避开玩家
+            var positions = TryPlacePositions(cellRects, count, rng, playerPos,
+                requirePlayerAvoid: true, existingPositions: null);
+
+            // Phase 2: 若不够，放宽玩家避让
+            if (positions.Count < count)
+            {
+                positions = TryPlacePositions(cellRects, count, rng, playerPos,
+                    requirePlayerAvoid: false, existingPositions: positions);
+            }
+
+            return positions;
+        }
+
+        /// <summary>
+        /// 在给定的 cell Rect 列表中随机取点，满足最小距离与可选玩家避让约束。
+        /// </summary>
+        private List<Vector3> TryPlacePositions(
+            List<Rect> cellRects,
+            int targetCount,
+            SeededRandom rng,
+            Vector3? playerPos,
+            bool requirePlayerAvoid,
+            List<Vector3> existingPositions)
+        {
+            var positions = existingPositions != null
+                ? new List<Vector3>(existingPositions)
+                : new List<Vector3>();
+
+            int maxAttempts = maxPlacementAttempts * targetCount;
+            for (int attempt = 0; attempt < maxAttempts && positions.Count < targetCount; attempt++)
+            {
+                // 随机选一个 cell
+                int cellIdx = rng.Range(0, cellRects.Count);
+                Rect rect = cellRects[cellIdx];
+
+                // 在 cell 内随机取点
+                float x = Mathf.Lerp(rect.xMin, rect.xMax, rng.Value);
+                float y = Mathf.Lerp(rect.yMin, rect.yMax, rng.Value);
+                var candidate = new Vector3(x, y, 0f);
+
+                // 约束：与已有点距离 ≥ minDropDistance
+                if (!IsFarEnoughFromAll(positions, candidate, minDropDistance))
+                    continue;
+
+                // 约束：与玩家距离 ≥ playerAvoidRadius
+                if (requirePlayerAvoid && playerPos.HasValue)
+                {
+                    if (Vector3.Distance(candidate, playerPos.Value) < playerAvoidRadius)
+                        continue;
+                }
+
+                positions.Add(candidate);
+            }
+
+            return positions;
+        }
+
+        private static bool IsFarEnoughFromAll(List<Vector3> positions, Vector3 candidate, float minDist)
+        {
+            float minDistSqr = minDist * minDist;
+            for (int i = 0; i < positions.Count; i++)
+            {
+                if ((candidate - positions[i]).sqrMagnitude < minDistSqr)
+                    return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 将格子坐标转为世界空间 Rect（10×10 单位/cell）。
+        /// </summary>
+        private static Rect CellToWorldRect(Vector2Int cell)
+        {
+            float size = DungeonViewManager.CellWorldSize;
+            return new Rect(cell.x * size, cell.y * size, size, size);
+        }
+
         private void ReleaseAllDrops()
         {
             for (int i = 0; i < _activeDrops.Count; i++)
@@ -343,37 +460,65 @@ namespace RogueDungeon.Rogue.Dungeon.Reward
             _debugDropCount = 0;
         }
 
-        private List<Vector3> ResolveSpawnPositions(string roomId, int count)
+        /// <summary>
+        /// 解析掉落物生成位置，按三级优先级：预设生成点 > Cell 随机 > 中心 Fallback。
+        /// </summary>
+        private List<Vector3> ResolveSpawnPositions(RoomInstance room, int count)
         {
             var positions = new List<Vector3>(count);
 
+            // ── Tier 1: 预设 SpawnType.Reward 生成点 ──
             var viewManager = FindObjectOfType<DungeonViewManager>();
-            if (viewManager != null && viewManager.TryGetRoomView(roomId, out var roomView))
+            RoomView roomView = null;
+            if (viewManager != null)
+                viewManager.TryGetRoomView(room.Id, out roomView);
+
+            if (roomView != null)
             {
                 var rewardPoints = roomView.GetSpawnPoints(SpawnType.Reward);
-                if (rewardPoints.Count > 0)
+                if (rewardPoints.Count >= count)
                 {
                     for (int i = 0; i < count; i++)
-                    {
-                        if (i < rewardPoints.Count && rewardPoints[i] != null)
-                            positions.Add(rewardPoints[i].transform.position);
-                        else
-                            positions.Add(roomView.transform.position + new Vector3((i - (count - 1) * 0.5f) * 0.8f, 0f, 0f));
-                    }
+                        positions.Add(rewardPoints[i].transform.position);
                     return positions;
                 }
-
-                Debug.LogWarning($"[RewardSpawner] 房间 '{roomId}' 未找到 SpawnType.Reward，使用中心点 Fallback");
-                var roomBounds = DungeonCamera.CalculateRoomBounds(roomView.Room);
-                var center = new Vector3(roomBounds.center.x, roomBounds.center.y, roomView.transform.position.z);
-                for (int i = 0; i < count; i++)
-                    positions.Add(center + new Vector3((i - (count - 1) * 0.5f) * 0.8f, 0f, 0f));
-                return positions;
             }
 
-            Debug.LogWarning($"[RewardSpawner] 未找到房间视图 '{roomId}'，使用世界原点 Fallback");
-            for (int i = 0; i < count; i++)
-                positions.Add(new Vector3((i - (count - 1) * 0.5f) * 0.8f, 0f, 0f));
+            // ── Tier 2: Cell 随机生成 ──
+            if (enableCellSpawn && room.Cells != null && room.Cells.Count > 0)
+            {
+                var run = RunManager.Instance?.CurrentRun;
+                if (run != null)
+                {
+                    int seed = SeededRandom.Hash(run.Seed, $"{room.Id}_cellspawn");
+                    var rng = new SeededRandom(seed);
+                    var playerPos = GetPlayerPosition();
+
+                    positions = GenerateCellSpawnPositions(room, count, rng, playerPos);
+                    if (positions.Count == count)
+                        return positions;
+
+                    if (positions.Count > 0)
+                        Debug.LogWarning($"[RewardSpawner] Cell 生成只找到 {positions.Count}/{count} 个位置，补充 Fallback");
+                }
+            }
+
+            // ── Tier 3: 边界框中心 Fallback ──
+            int remaining = count - positions.Count;
+            if (roomView != null)
+            {
+                var roomBounds = DungeonCamera.CalculateRoomBounds(roomView.Room);
+                var center = new Vector3(roomBounds.center.x, roomBounds.center.y, roomView.transform.position.z);
+                for (int i = 0; i < remaining; i++)
+                    positions.Add(center + new Vector3((i - (remaining - 1) * 0.5f) * fallbackSpawnSpacing, fallbackSpawnYOffset, 0f));
+            }
+            else
+            {
+                Debug.LogWarning($"[RewardSpawner] 未找到房间视图 '{room.Id}'，使用世界原点 Fallback");
+                for (int i = 0; i < remaining; i++)
+                    positions.Add(new Vector3((i - (remaining - 1) * 0.5f) * fallbackSpawnSpacing, fallbackSpawnYOffset, 0f));
+            }
+
             return positions;
         }
 
@@ -407,8 +552,13 @@ namespace RogueDungeon.Rogue.Dungeon.Reward
             var manager = BuffManager.Instance;
             if (manager == null)
             {
-                var managerObject = new GameObject("BuffManager");
-                manager = managerObject.AddComponent<BuffManager>();
+                // 优先查找场景中已有但 Awake 尚未执行的 BuffManager，避免创建重复
+                manager = FindFirstObjectByType<BuffManager>();
+                if (manager == null)
+                {
+                    var managerObject = new GameObject("BuffManager");
+                    manager = managerObject.AddComponent<BuffManager>();
+                }
             }
 
             manager.BindBuffPoolIfMissing(buffPool);

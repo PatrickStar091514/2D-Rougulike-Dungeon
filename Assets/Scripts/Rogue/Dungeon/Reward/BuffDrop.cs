@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using RogueDungeon.Core.Buff;
 using RogueDungeon.Core.Pool;
 using RogueDungeon.Data.Runtime;
 
@@ -30,23 +31,27 @@ namespace RogueDungeon.Rogue.Dungeon.Reward
         /// <summary>
         /// 初始化掉落物数据。
         /// </summary>
-        /// <param name="id">Buff ID</param>
+        /// <param name="snapshot">Buff 运行时快照</param>
         /// <param name="icon">显示图标</param>
         /// <param name="pickupGroup">互斥组（可为 null）</param>
         /// <param name="onPicked">拾取回调</param>
         public void Init(
-            string id,
+            BuffSnapshot snapshot,
             Sprite icon,
             ExclusivePickupGroup pickupGroup,
-            Action<BuffDrop> onPicked,
-            string sortingLayer = null,
-            float spriteScale = 1f,
-            float colliderRadius = 0.5f)
+            Action<BuffDrop> onPicked)
         {
-            buffId = id;
+            if (snapshot == null) return;
+
+            buffId = snapshot.BuffId;
             group = pickupGroup;
             _onPicked = onPicked;
             isPicked = false;
+
+            string sortingLayer = snapshot.DropSortingLayer;
+            float spriteScale = snapshot.DropSpriteScale;
+            float colliderRadius = snapshot.DropColliderRadius;
+
             if (!string.IsNullOrEmpty(sortingLayer))
                 visibleSortingLayer = sortingLayer;
 

@@ -245,8 +245,8 @@ namespace RogueDungeon.Rogue.Dungeon.View
             panelMask.showMaskGraphic = true;
 
             _contentRect = CreateLayerRect("Content", _panelRect);
-            _lineLayer = CreateLayerRect("LineLayer", _contentRect);
             _cellLayer = CreateLayerRect("CellLayer", _contentRect);
+            _lineLayer = CreateLayerRect("LineLayer", _contentRect);
 
             var bossGo = new GameObject("BossIcon", typeof(RectTransform), typeof(Image));
             var bossRect = bossGo.GetComponent<RectTransform>();
