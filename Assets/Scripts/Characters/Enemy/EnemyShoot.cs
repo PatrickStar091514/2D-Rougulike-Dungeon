@@ -25,12 +25,23 @@ public class EnemyShoot : MonoBehaviour
     {
         rigidbody = GetComponent<Rigidbody2D>();
         nextFireTime = Time.time;
+        if (fireRate <= 0.1f) fireRate = 0.5f;
+        if (bulletPrefab == null) enabled = false; //disable script if no bullet prefab
+        if (detectionRadius <= 0) detectionRadius = 5f;
+        FindPlayer();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (player == null)
+        {
+            FindPlayer();
+            isPlayerDetected = false;
+            return;
+        }
+
+        PlayerDetection();
     }
 
     // step 1
@@ -85,6 +96,28 @@ public class EnemyShoot : MonoBehaviour
     // step 4
     void PlayerDetection()
     {
+        float distanceToPlayer = Vector2.Distance(rigidbody.position, playerRb != null ? playerRb.position : (Vector2)player.position);
+        isPlayerDetected = distanceToPlayer <= detectionRadius;
+        if (isPlayerDetected && !wasPlayerDetectedLastFrame)
+        {
+            // shoot immediately when player enters range of detection
+            nextFireTime = Time.time;
+        }
+        if (isPlayerDetected && Time.time >= nextFireTime)
+        {
+            ShootAtPlayer();
+            nextFireTime = Time.time + 1f / fireRate;
+        }
 
+        wasPlayerDetectedLastFrame = isPlayerDetected;
     }
+
+    // step 5
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+    }
+
+    
 }
