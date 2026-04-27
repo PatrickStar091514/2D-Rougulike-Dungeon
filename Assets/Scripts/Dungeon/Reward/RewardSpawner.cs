@@ -54,7 +54,7 @@ namespace RogueDungeon.Dungeon.Reward
         [Min(1)]
         [SerializeField] private int maxPlacementAttempts = 30;
         [Min(0f)]
-        [SerializeField] private float cellEdgePadding = 0.5f;
+        [SerializeField] private float cellEdgePadding = 2.25f;
 
         [Header("Runtime Debug")]
         [SerializeField] private string _debugActiveRoomId; // 当前奖励房间

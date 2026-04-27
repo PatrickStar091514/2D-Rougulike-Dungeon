@@ -503,7 +503,7 @@ MonoBehaviour:
   minDropDistance: 1.5
   playerAvoidRadius: 1
   maxPlacementAttempts: 30
-  cellEdgePadding: 0.5
+  cellEdgePadding: 2.25
   _debugActiveRoomId: 
   _debugDropCount: 0
 --- !u!4 &402115617
