@@ -8,7 +8,7 @@ public class DamageManager : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Bullet"))
+        if (collision.gameObject.CompareTag("PlayerBullet"))
         {
             Destroy(gameObject);
         }
