@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,7 @@ public class Bullet : MonoBehaviour
 {
     [SerializeField] private float lifetime = 1.5f;
     [SerializeField] private CircleCollider2D bulletCollider;
+    private string poolTag = "PlayerBullet";
 
     private void Awake()
     {
@@ -13,17 +15,28 @@ public class Bullet : MonoBehaviour
         bulletCollider.isTrigger = true;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void OnEnable()
     {
-        Destroy(gameObject, lifetime); // destroy bullet after lifetime has passed
+        Invoke(nameof(ReturnToPool), lifetime); // 重新激活时重置生命周期
     }
+
+    private void OnDisable()
+    {
+        CancelInvoke(nameof(ReturnToPool)); // 取消未执行的回收调用
+
+    }
+
+    private void ReturnToPool() // 回收子弹到池
+    {
+        BulletPoolManager.Instance.ReturnBulletToPool(gameObject, poolTag);
+    }
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Platform") || collision.CompareTag("Enemy"))
         {
-            Destroy(gameObject);
+            ReturnToPool(); // 碰撞后回收，而非销毁
         }
 
     }
