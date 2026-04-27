@@ -497,6 +497,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buffPool: {fileID: 11400000, guid: c5357326f5be5f44b930d060c9216377, type: 2}
   buffDropPrefab: {fileID: 7090857483631023693, guid: d295a2ad5bf7c574f9d12e1e7ac1cda7, type: 3}
+  fallbackSpawnSpacing: 1.5
+  fallbackSpawnYOffset: 0
+  enableCellSpawn: 1
+  minDropDistance: 1.5
+  playerAvoidRadius: 1
+  maxPlacementAttempts: 30
+  cellEdgePadding: 0.5
   _debugActiveRoomId: 
   _debugDropCount: 0
 --- !u!4 &402115617

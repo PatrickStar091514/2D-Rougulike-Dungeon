@@ -9,23 +9,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db668c3215f1b0f4b82b7febc18b67b3, type: 3}
+  m_Script: {fileID: 11500000, guid: 7ab0f2504e750bb43940bbe1a298bf3a, type: 3}
   m_Name: DoubleHRoom
   m_EditorClassIdentifier: 
   templateId: DoubleHRoom
   shape: 1
-  allowedTypes: 010000000200000004000000
+  allowedTypes: 0100000004000000
   doorSlots:
   - cellOffset: {x: 0, y: 0}
     direction: 0
   - cellOffset: {x: 0, y: 0}
-    direction: 3
-  - cellOffset: {x: 0, y: 0}
     direction: 1
-  - cellOffset: {x: 1, y: 0}
-    direction: 0
+  - cellOffset: {x: 0, y: 0}
+    direction: 3
   - cellOffset: {x: 1, y: 0}
     direction: 2
+  - cellOffset: {x: 1, y: 0}
+    direction: 0
   - cellOffset: {x: 1, y: 0}
     direction: 1
   prefab: {fileID: 2406885504911892289, guid: 88d1be61612bb42caa6165300509872a, type: 3}

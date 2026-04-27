@@ -1,7 +1,7 @@
 using UnityEngine;
 using RogueDungeon.Core.Events;
-using RogueDungeon.Rogue.Dungeon;
-using RogueDungeon.Rogue.Dungeon.View;
+using RogueDungeon.Dungeon;
+using RogueDungeon.Dungeon.View;
 
 namespace RogueDungeon.Debugging
 {

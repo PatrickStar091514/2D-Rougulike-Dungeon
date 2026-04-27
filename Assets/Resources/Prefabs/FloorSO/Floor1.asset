@@ -9,32 +9,32 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26b4d9ac0c68ad6488cee4452e2eef72, type: 3}
+  m_Script: {fileID: 11500000, guid: 76f376c169d48704baa88bdebf097547, type: 3}
   m_Name: Floor1
   m_EditorClassIdentifier: 
-  gridWidth: 4
-  gridHeight: 5
-  targetRoomCount: 16
-  eliteCount: 1
-  eventCount: 1
+  gridWidth: 3
+  gridHeight: 6
+  targetRoomCount: 14
+  eliteCount: 2
+  eventCount: 2
   mergeRate: 0.95
   shapeWeights:
   - shape: 0
     weight: 0.1
-  - shape: 3
-    weight: 0.05
-  - shape: 6
-    weight: 0.25
-  - shape: 4
-    weight: 0.25
-  - shape: 7
-    weight: 0.25
-  - shape: 5
-    weight: 0.25
-  - shape: 2
-    weight: 0.175
   - shape: 1
-    weight: 0.175
+    weight: 0.45
+  - shape: 2
+    weight: 0.45
+  - shape: 3
+    weight: 0.2
+  - shape: 4
+    weight: 0.3
+  - shape: 7
+    weight: 0.3
+  - shape: 5
+    weight: 0.3
+  - shape: 6
+    weight: 0.3
   templates:
   - {fileID: 11400000, guid: f16f08db7ae224b60a1eb747a915329d, type: 2}
   - {fileID: 11400000, guid: 654f4e70869ca490a9f6c3a2fd3dddb1, type: 2}

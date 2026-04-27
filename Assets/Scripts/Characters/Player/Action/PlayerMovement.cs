@@ -1,4 +1,5 @@
-using RogueDungeon.Rogue.Dungeon.Data;
+using RogueDungeon.Dungeon.Types;
+using RogueDungeon.Dungeon.Config;
 using System;
 using System.Collections;
 using System.Collections.Generic;
