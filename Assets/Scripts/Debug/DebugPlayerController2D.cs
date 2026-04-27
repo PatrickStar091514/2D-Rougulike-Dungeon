@@ -1,5 +1,5 @@
 using UnityEngine;
-using RogueDungeon.Rogue.Dungeon.View;
+using RogueDungeon.Dungeon.View;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif

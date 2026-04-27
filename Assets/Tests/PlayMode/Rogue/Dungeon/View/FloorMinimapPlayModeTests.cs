@@ -7,10 +7,12 @@ using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 using RogueDungeon.Core.Events;
-using RogueDungeon.Rogue.Dungeon;
-using RogueDungeon.Rogue.Dungeon.Data;
-using RogueDungeon.Rogue.Dungeon.Runtime;
-using RogueDungeon.Rogue.Dungeon.View;
+using RogueDungeon.Dungeon;
+using RogueDungeon.Dungeon.Types;
+using RogueDungeon.Dungeon.Config;
+using RogueDungeon.Dungeon.Map;
+using RogueDungeon.Dungeon.Types;
+using RogueDungeon.Dungeon.View;
 #if UNITY_EDITOR
 using UnityEditor.SceneManagement;
 #endif
