@@ -36,12 +36,6 @@ public class PlayerShoot : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if (shootTimer > 0f)
-        //{
-        //    shootTimer -= Time.deltaTime;
-        //}
-        //ShootBullet();
-        //WeaponVisible();
 
         if (Input.GetButtonDown("Shoot"))
         {
@@ -73,30 +67,30 @@ public class PlayerShoot : MonoBehaviour
         }
     }
 
-    void ShootBullet()
-    {
-        if (isVisible)
-        {
-            if (input.shootPressed && shootTimer <= 0)
-            {
-                isShooting = true;
-                shootTimer = fireRate;
-                Shoot();
-            }
-            else if (input.shootPressed == false)
-            {
-                isShooting = false;
-            }
-        }
-        else { return; }
-    }
-
     void Shoot()
     {
         // delegate shooting to modular shooting pattern
-        if (shootingPattern != null)
+        //if (shootingPattern != null)
+        //{
+        //    shootingPattern.Shoot(bulletPrefab, firePoint, bulletSpeed);
+        //}
+
+        // 注意：需要修改 ShootingPatterns.Shoot 方法，使其使用对象池
+        // 临时方案：直接在PlayerShoot中获取子弹（如果ShootingPatterns是自定义类）
+        GameObject bullet = BulletPoolManager.Instance.GetBulletFromPool(
+            "PlayerBullet",
+            firePoint.position,
+            firePoint.rotation
+        );
+        if (bullet != null)
         {
-            shootingPattern.Shoot(bulletPrefab, firePoint, bulletSpeed);
+            Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.velocity = firePoint.right * bulletSpeed; // 按发射方向赋值速度
+            }
         }
+        // 原逻辑：shootingPattern.Shoot(bulletPrefab, firePoint, bulletSpeed);
+        // 需同步修改 ShootingPatterns.Shoot 方法，传入池标签而非预制体
     }
 }

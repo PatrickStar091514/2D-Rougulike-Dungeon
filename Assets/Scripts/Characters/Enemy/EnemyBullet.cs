@@ -5,23 +5,32 @@ using UnityEngine;
 public class EnemyBullet : MonoBehaviour
 {
     [SerializeField] private float lifetime = 3f;
+    private string poolTag = "EnemyBullet";
 
-    // Start is called before the first frame update
-    void Start()
+    private void OnEnable()
     {
-        Destroy(gameObject, lifetime);
+        Invoke(nameof(ReturnToPool), lifetime); // 重新激活时重置生命周期
+    }
+
+    private void OnDisable()
+    {
+        CancelInvoke(nameof(ReturnToPool)); // 取消未执行的回收调用
+    }
+    private void ReturnToPool() // 回收子弹到池
+    {
+        BulletPoolManager.Instance.ReturnBulletToPool(gameObject, poolTag);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            Destroy(gameObject);
             PlayerHealth.Instance.Health -= 1;
+            ReturnToPool();
         }
         if (collision.CompareTag("Platform"))
         {
-            Destroy(gameObject);
+            ReturnToPool();
         }
     }
 }
