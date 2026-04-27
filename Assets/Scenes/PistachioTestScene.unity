@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 10637872}
   - component: {fileID: 10637871}
   - component: {fileID: 10637873}
+  - component: {fileID: 10637874}
   m_Layer: 0
   m_Name: Enemy_Spider
   m_TagString: Enemy
@@ -336,6 +337,19 @@ MonoBehaviour:
   speed: 2
   startPosition: {x: 0, y: 0}
   rb: {fileID: 0}
+--- !u!114 &10637874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 10637867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f26a00dba2287b479320a976908a7b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 1
 --- !u!1 &167397261
 GameObject:
   m_ObjectHideFlags: 0
@@ -555,6 +569,7 @@ GameObject:
   - component: {fileID: 330362561}
   - component: {fileID: 330362560}
   - component: {fileID: 330362559}
+  - component: {fileID: 330362562}
   m_Layer: 0
   m_Name: Enemy_Bat
   m_TagString: Enemy
@@ -755,6 +770,19 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &330362562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330362555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f26a00dba2287b479320a976908a7b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 1
 --- !u!1 &489470299
 GameObject:
   m_ObjectHideFlags: 0
@@ -997,6 +1025,7 @@ GameObject:
   - component: {fileID: 770843831}
   - component: {fileID: 770843830}
   - component: {fileID: 770843832}
+  - component: {fileID: 770843833}
   m_Layer: 0
   m_Name: Enemy_Ghost
   m_TagString: Enemy
@@ -1197,6 +1226,19 @@ MonoBehaviour:
   speed: 2
   startPosition: {x: 0, y: 0}
   rb: {fileID: 0}
+--- !u!114 &770843833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 770843826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f26a00dba2287b479320a976908a7b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 1
 --- !u!1 &855346590
 GameObject:
   m_ObjectHideFlags: 0
@@ -1341,6 +1383,7 @@ GameObject:
   - component: {fileID: 1011147280}
   - component: {fileID: 1011147279}
   - component: {fileID: 1011147281}
+  - component: {fileID: 1011147282}
   m_Layer: 0
   m_Name: Enemy_Scorpion
   m_TagString: Enemy
@@ -1541,6 +1584,19 @@ MonoBehaviour:
   speed: 2
   startPosition: {x: 0, y: 0}
   rb: {fileID: 0}
+--- !u!114 &1011147282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1011147275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f26a00dba2287b479320a976908a7b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 1
 --- !u!1 &1018632434
 GameObject:
   m_ObjectHideFlags: 0
