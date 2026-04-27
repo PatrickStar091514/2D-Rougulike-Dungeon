@@ -137,6 +137,7 @@ GameObject:
   - component: {fileID: 10637871}
   - component: {fileID: 10637873}
   - component: {fileID: 10637874}
+  - component: {fileID: 10637875}
   m_Layer: 0
   m_Name: Enemy_Spider
   m_TagString: Enemy
@@ -350,6 +351,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
+--- !u!114 &10637875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 10637867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aac7b13060d1f0848bff496ecb9df1eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletPrefab: {fileID: 830309058845689354, guid: fe213ca26c9d9e448b5c586de74f2fba, type: 3}
+  detectionRadius: 5
+  fireRate: 0.5
+  bulletSpeed: 5
+  minBulletCount: 1
+  maxBulletCount: 5
+  bulletSpreadAngle: 3
 --- !u!1 &167397261
 GameObject:
   m_ObjectHideFlags: 0
@@ -570,6 +590,7 @@ GameObject:
   - component: {fileID: 330362560}
   - component: {fileID: 330362559}
   - component: {fileID: 330362562}
+  - component: {fileID: 330362563}
   m_Layer: 0
   m_Name: Enemy_Bat
   m_TagString: Enemy
@@ -783,6 +804,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
+--- !u!114 &330362563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330362555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aac7b13060d1f0848bff496ecb9df1eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletPrefab: {fileID: 830309058845689354, guid: fe213ca26c9d9e448b5c586de74f2fba, type: 3}
+  detectionRadius: 5
+  fireRate: 0.5
+  bulletSpeed: 5
+  minBulletCount: 1
+  maxBulletCount: 5
+  bulletSpreadAngle: 3
 --- !u!1 &489470299
 GameObject:
   m_ObjectHideFlags: 0
@@ -1026,6 +1066,7 @@ GameObject:
   - component: {fileID: 770843830}
   - component: {fileID: 770843832}
   - component: {fileID: 770843833}
+  - component: {fileID: 770843834}
   m_Layer: 0
   m_Name: Enemy_Ghost
   m_TagString: Enemy
@@ -1239,6 +1280,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
+--- !u!114 &770843834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 770843826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aac7b13060d1f0848bff496ecb9df1eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletPrefab: {fileID: 830309058845689354, guid: fe213ca26c9d9e448b5c586de74f2fba, type: 3}
+  detectionRadius: 5
+  fireRate: 0.5
+  bulletSpeed: 5
+  minBulletCount: 1
+  maxBulletCount: 5
+  bulletSpreadAngle: 3
 --- !u!1 &855346590
 GameObject:
   m_ObjectHideFlags: 0
@@ -1384,6 +1444,7 @@ GameObject:
   - component: {fileID: 1011147279}
   - component: {fileID: 1011147281}
   - component: {fileID: 1011147282}
+  - component: {fileID: 1011147283}
   m_Layer: 0
   m_Name: Enemy_Scorpion
   m_TagString: Enemy
@@ -1597,6 +1658,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
+--- !u!114 &1011147283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1011147275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aac7b13060d1f0848bff496ecb9df1eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletPrefab: {fileID: 830309058845689354, guid: fe213ca26c9d9e448b5c586de74f2fba, type: 3}
+  detectionRadius: 5
+  fireRate: 0.5
+  bulletSpeed: 5
+  minBulletCount: 1
+  maxBulletCount: 5
+  bulletSpreadAngle: 3
 --- !u!1 &1018632434
 GameObject:
   m_ObjectHideFlags: 0
