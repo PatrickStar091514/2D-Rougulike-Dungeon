@@ -1826,8 +1826,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5963074323218391188, guid: e162777053e59e6478af56eb59bbf4f0, type: 3}
+      insertIndex: 5
+      addedObject: {fileID: 4675254806002410565}
   m_SourcePrefab: {fileID: 100100000, guid: e162777053e59e6478af56eb59bbf4f0, type: 3}
+--- !u!1 &4675254806002410564 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5963074323218391188, guid: e162777053e59e6478af56eb59bbf4f0, type: 3}
+  m_PrefabInstance: {fileID: 4675254806002410563}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4675254806002410565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4675254806002410564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6013271a92076e449f5a7d392c94a09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseMoveSpeed: 8
+  baseAttackDamage: 5
+  baseMaxHP: 50
+  playerMovement: {fileID: 0}
+  playerShoot: {fileID: 0}
 --- !u!1001 &4724125790459368940
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -8,6 +8,12 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float lifetime = 1.5f;
     [SerializeField] private CircleCollider2D bulletCollider;
     private string poolTag = "PlayerBullet";
+    private float attackDamage;
+
+    public void SetAttackDamage(float damage)
+    {
+        attackDamage = damage;
+    }
 
     private void Awake()
     {
@@ -34,9 +40,19 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Platform") || collision.CompareTag("Enemy"))
+        if (collision.CompareTag("Platform"))
         {
             ReturnToPool(); // 碰撞后回收，而非销毁
+        }
+
+        if (collision.CompareTag("Enemy"))
+        {
+            Enemy enemy = collision.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                enemy.data.TakeDamage((int)attackDamage);
+            }
+            ReturnToPool();
         }
 
     }
