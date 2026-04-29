@@ -8,7 +8,7 @@ public class RandomMovement : MonoBehaviour
     [SerializeField] private float amplitudeY = 1f;
     [SerializeField] private float frequencyX = 1f;
     [SerializeField] private float frequencyY = 0.5f;
-    [SerializeField] private float speed = 2f;
+    [SerializeField] public float speed = 2f;
 
     [SerializeField] private Vector2 startPosition;
     private float timeOffset;

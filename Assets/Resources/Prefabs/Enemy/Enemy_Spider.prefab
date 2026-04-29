@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 4996407136882628914}
   - component: {fileID: 7992160143364869488}
   - component: {fileID: 3352713653275915174}
+  - component: {fileID: -5662680347401012903}
   m_Layer: 0
   m_Name: Enemy_Spider
   m_TagString: Enemy
@@ -228,7 +229,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f26a00dba2287b479320a976908a7b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 1
 --- !u!114 &3352713653275915174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248,3 +248,16 @@ MonoBehaviour:
   minBulletCount: 1
   maxBulletCount: 5
   bulletSpreadAngle: 5
+--- !u!114 &-5662680347401012903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5706756896141226681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0109b8f07f512d41ac6f5c1662279f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyType: 1
