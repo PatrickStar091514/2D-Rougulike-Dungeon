@@ -14,10 +14,16 @@ public class PlayerCharacter : MonoBehaviour
     [SerializeField] private float baseAttackDamage = 5f;   // 基础攻击力（示例扩展属性）
     [SerializeField] private float baseMaxHP = 50f;
 
+    [Header("Buff后属性")]
+    [SerializeField] private float finalSpeed;
+    [SerializeField] private float finalDamage;
+    [SerializeField] private float finalHP;
+
     // 2. 关联角色功能组件（根据实际组件名调整）
     [Header("角色组件")]
     [SerializeField] private PlayerMovement playerMovement; // 移动组件
     [SerializeField] private PlayerShoot playerShoot;     // 攻击组件（示例扩展）
+    [SerializeField] private PlayerHealth playerHealth;
 
     private void Awake()
     {
@@ -26,6 +32,8 @@ public class PlayerCharacter : MonoBehaviour
             playerMovement = GetComponent<PlayerMovement>();
         if (playerShoot == null)
             playerShoot = GetComponent<PlayerShoot>();
+        if (playerHealth == null)
+            playerHealth = GetComponent<PlayerHealth>();
     }
 
     private void OnEnable()
@@ -69,7 +77,15 @@ public class PlayerCharacter : MonoBehaviour
 
     private void RefreshPlayerHp()
     {
-        throw new NotImplementedException();
+        if (playerHealth == null) return;
+
+        float flatMod = BuffManager.Instance.GetTotalStatModifier(StatType.MaxHP, ModifyType.Flat);
+        float percentMod = BuffManager.Instance.GetTotalStatModifier(StatType.MaxHP, ModifyType.Percent);
+        finalHP = (baseMaxHP + flatMod) / (1f + percentMod);
+        int hpOffset = (int)finalHP - playerHealth.maxHP;
+
+        playerHealth.maxHP = (int)Mathf.Max(10f,finalHP);
+        playerHealth.Health += hpOffset;
     }
 
     private void RefreshAttackDamage()
@@ -78,7 +94,7 @@ public class PlayerCharacter : MonoBehaviour
 
         float flatMod = BuffManager.Instance.GetTotalStatModifier(StatType.Attack, ModifyType.Flat);
         float percentMod = BuffManager.Instance.GetTotalStatModifier(StatType.Attack, ModifyType.Percent);
-        float finalDamage = (baseAttackDamage + flatMod) * (1f + percentMod);
+        finalDamage = (baseAttackDamage + flatMod) * (1f + percentMod);
 
         playerShoot.attackDamage = Mathf.Max(1f, finalDamage); // 攻击力最低为1
     }
@@ -95,7 +111,7 @@ public class PlayerCharacter : MonoBehaviour
 
         float flatMod = BuffManager.Instance.GetTotalStatModifier(StatType.MoveSpeed, ModifyType.Flat);
         float percentMod = BuffManager.Instance.GetTotalStatModifier(StatType.MoveSpeed, ModifyType.Percent);
-        float finalSpeed = (baseMoveSpeed + flatMod) * (1f + percentMod);
+        finalSpeed = (baseMoveSpeed + flatMod) * (1f + percentMod);
 
         playerMovement.speed = Mathf.Max(0f, finalSpeed);
     }

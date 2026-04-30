@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 2881233075944803579}
   - component: {fileID: 395307218415808908}
   - component: {fileID: 6663521410802857483}
+  - component: {fileID: 6774618502837732512}
+  - component: {fileID: 3471583851708630322}
   - component: {fileID: 8235394473389899383}
   - component: {fileID: 7736267863279558828}
   m_Layer: 0
@@ -142,6 +144,39 @@ MonoBehaviour:
   fireRate: 0.3
   weaponSprite: {fileID: 7163684765583733256}
   shootingPattern: {fileID: 11400000, guid: cc3eb6ecd25bdb64aa9460c85166b678, type: 2}
+  attackDamage: 5
+--- !u!114 &6774618502837732512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5963074323218391188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6013271a92076e449f5a7d392c94a09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseMoveSpeed: 8
+  baseAttackDamage: 5
+  baseMaxHP: 50
+  playerMovement: {fileID: 0}
+  playerShoot: {fileID: 0}
+  playerHealth: {fileID: 0}
+--- !u!114 &3471583851708630322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5963074323218391188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82d377dbbeefb9f499426e4b69ee4417, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hpText: {fileID: 0}
+  maxHP: 50
 --- !u!61 &8235394473389899383
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -312,3 +347,4 @@ MonoBehaviour:
   fireRate: 0.3
   weaponSprite: {fileID: 7163684765583733256}
   shootingPattern: {fileID: 11400000, guid: cc3eb6ecd25bdb64aa9460c85166b678, type: 2}
+  attackDamage: 5

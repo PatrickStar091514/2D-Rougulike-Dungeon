@@ -7,6 +7,20 @@ using TMPro;
 public class PlayerHealth : MonoBehaviour
 {
     public static PlayerHealth Instance;
+    public TMP_Text hpText;
+    public int maxHP = 50;
+
+    private int health;
+
+    public int Health
+    {
+        get => health;
+        set
+        {
+            health = value;
+            hpText.text = health + "/" + maxHP;
+        }
+    }
 
     private void Awake()
     {
@@ -14,30 +28,27 @@ public class PlayerHealth : MonoBehaviour
         {
             Instance = this;
         }
+        else
+        {
+            Destroy(gameObject); // ∑¿÷ÿ∏¥
+        }
+
         Init();
-    }
-
-    public TMP_Text hpText;
-
-    public int maxHP = 10;
-    private int health;
-
-    public int Health
-    {
-        get
-        {
-            return health;
-        }
-        set
-        {
-            health = value;
-            hpText.text = Health + "/" + maxHP;
-        }
-
     }
 
     public void Init()
     {
         Health = maxHP;
+    }
+
+    public void PlayerTakeDamage(int damage)
+    {
+        Health -= damage;
+        Health = Mathf.Max(0, Health);
+
+        if (Health <= 0)
+        {
+            Destroy(gameObject);
+        }
     }
 }
