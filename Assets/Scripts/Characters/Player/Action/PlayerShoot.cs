@@ -12,8 +12,7 @@ public class PlayerShoot : MonoBehaviour
     [SerializeField] private float fireRate = 0.5f;
     [SerializeField] private SpriteRenderer weaponSprite;
     [SerializeField] private ShootingPatterns shootingPattern;
-    //[SerializeField] private PlayerMovement flip;
-
+    [SerializeField] public float attackDamage = 5f;
     private float shootTimer = 0f; // time since last shot
     
     private bool isVisible = false;

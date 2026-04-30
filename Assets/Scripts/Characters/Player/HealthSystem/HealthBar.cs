@@ -15,8 +15,8 @@ public class HealthBar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        hpBar.value = (int) PlayerHealth.Instance.maxHP - (PlayerHealth.Instance.maxHP - PlayerHealth.Instance.Health);
-        //hpBar.value = (int) PlayerHealth.Instance.Health / PlayerHealth.Instance.maxHP * 100;
+        //hpBar.value = (int) PlayerHealth.Instance.maxHP - (PlayerHealth.Instance.maxHP - PlayerHealth.Instance.Health);
+        hpBar.value = (float)PlayerHealth.Instance.Health / PlayerHealth.Instance.maxHP;
     }
 
 }

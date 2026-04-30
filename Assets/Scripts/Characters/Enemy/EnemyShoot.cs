@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class EnemyShoot : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class EnemyShoot : MonoBehaviour
     [SerializeField] private int minBulletCount = 1; //min no. bullet to spawn
     [SerializeField] private int maxBulletCount = 5; //max no. bullet to spawn
     [SerializeField] private float bulletSpreadAngle = 3f; //spread angle for multiple bullets
+    [SerializeField] private Enemy enemy;
 
     private Transform player;
     private Rigidbody2D playerRb;
@@ -24,6 +26,7 @@ public class EnemyShoot : MonoBehaviour
     void Start()
     {
         rigidbody = GetComponent<Rigidbody2D>();
+        enemy = GetComponent<Enemy>();
         nextFireTime = Time.time;
         if (fireRate <= 0.1f) fireRate = 0.5f;
         if (bulletPrefab == null) enabled = false; //disable script if no bullet prefab
@@ -88,12 +91,17 @@ public class EnemyShoot : MonoBehaviour
             rigidbody.position,
             Quaternion.identity
             );
+        if (bullet == null) return;
+
+        EnemyBullet bulletobj = bullet.GetComponent<EnemyBullet>();
+        bulletobj.Init(enemy);
 
         if (bullet != null)
         {
             Rigidbody2D bulletRb = bullet.GetComponent<Rigidbody2D>();
             if (bulletRb != null)
             {
+                bulletRb.velocity = Vector2.zero;
                 bulletRb.velocity = direction * bulletSpeed;
                 float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
                 bullet.transform.rotation = Quaternion.Euler(0, 0, angle);
