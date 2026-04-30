@@ -9,62 +9,21 @@ using UnityEngine.EventSystems;
 
 public class DamageManager : MonoBehaviour
 {
-    private Enemy enemy;
-    private PlayerCharacter playerCha;
-    private int currentPlayerAttack;
-
-
+    [SerializeField] private Enemy enemy;
+    [SerializeField] private int enemyHP;
+    [SerializeField] private PlayerCharacter playerCha;
+    [SerializeField] private int currentPlayerAttack;
 
     private void Awake()
     {
         enemy = GetComponent<Enemy>();
+        enemyHP = enemy.data.CurrentHP;
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if(player != null)
         {
             playerCha = player.GetComponent<PlayerCharacter>();
         }
-    }
-
-    private void OnEnable()
-    {
-        if (playerCha != null)
-        {
-            EventCenter.AddListener<BuffAppliedEvent>(GameEventType.BuffApplied, OnBuffApplied);
-            EventCenter.AddListener<BuffExpiredEvent>(GameEventType.BuffExpired, OnBuffExpired);
-            EventCenter.AddListener<BuffStackChangedEvent>(GameEventType.BuffStackChanged, OnBuffStackChanged);
-            EventCenter.AddListener<RunReadyEvent>(GameEventType.RunReady, OnRunReady);
-
-            UpdatePlayerAttack();
-        }
-    }
-
-    private void OnDisable()
-    {
-        EventCenter.RemoveListener<BuffAppliedEvent>(GameEventType.BuffApplied, OnBuffApplied);
-        EventCenter.RemoveListener<BuffExpiredEvent>(GameEventType.BuffExpired, OnBuffExpired);
-        EventCenter.RemoveListener<BuffStackChangedEvent>(GameEventType.BuffStackChanged, OnBuffStackChanged);
-        EventCenter.RemoveListener<RunReadyEvent>(GameEventType.RunReady, OnRunReady);
-
-    }
-    private void OnBuffApplied(BuffAppliedEvent evt)
-    {
-        UpdatePlayerAttack();
-    }
-
-    private void OnBuffExpired(BuffExpiredEvent evt)
-    {
-        UpdatePlayerAttack();
-    }
-
-    private void OnBuffStackChanged(BuffStackChangedEvent evt)
-    {
-        UpdatePlayerAttack();
-    }
-
-    private void OnRunReady(RunReadyEvent evt)
-    {
-        UpdatePlayerAttack();
     }
 
     private void UpdatePlayerAttack()
@@ -81,6 +40,7 @@ public class DamageManager : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        UpdatePlayerAttack();
         if (collision.gameObject.CompareTag("PlayerBullet"))
         {
             Destroy(collision.gameObject);

@@ -13,17 +13,17 @@ public class EnemyData
 {
     private int _maxHP;       // 私有字段，禁止外部修改
     private int _currentHP;
-    private int _moveSpeed;
+    private float _moveSpeed;
     private int _damage;
 
     // 只读属性，外部只能读取，不能修改
     public int MaxHP => _maxHP;
     public int CurrentHP => _currentHP;
-    public int MoveSpeed => _moveSpeed;
+    public float MoveSpeed => _moveSpeed;
     public int Damage => _damage;
 
     // 仅Enemy类内部可修改的方法
-    public void SetBaseStats(int maxHP, int currentHP, int moveSpeed, int damage)
+    public void SetBaseStats(int maxHP, int currentHP, float moveSpeed, int damage)
     {
         _maxHP = maxHP;
         _currentHP = currentHP;
@@ -52,16 +52,16 @@ public class Enemy : MonoBehaviour
         switch(enemyType)
         {
             case EnemyType.Bat:
-                data.SetBaseStats(15, 15, 4, 3);
+                data.SetBaseStats(15, 15, 8, 4);
                 break;
             case EnemyType.Spider:
-                data.SetBaseStats(10, 10, 4, 5);
+                data.SetBaseStats(20, 20, 3, 5);
                 break;
             case EnemyType.Ghost:
-                data.SetBaseStats(30, 30, 2, 2);
+                data.SetBaseStats(30, 30, 1, 2);
                 break;
             case EnemyType.Scorpion:
-                data.SetBaseStats(10, 10, 3, 6);
+                data.SetBaseStats(10, 10, 5, 6);
                 break;
         }
     }

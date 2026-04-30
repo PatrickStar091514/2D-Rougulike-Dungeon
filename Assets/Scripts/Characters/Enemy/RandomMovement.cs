@@ -8,7 +8,8 @@ public class RandomMovement : MonoBehaviour
     [SerializeField] private float amplitudeY = 1f;
     [SerializeField] private float frequencyX = 1f;
     [SerializeField] private float frequencyY = 0.5f;
-    [SerializeField] public float speed = 2f;
+    [SerializeField] private Enemy enemy;
+    [SerializeField] private float speed;
 
     [SerializeField] private Vector2 startPosition;
     private float timeOffset;
@@ -20,6 +21,8 @@ public class RandomMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         startPosition = rb.position;
         timeOffset = Random.Range(0f, 2f * Mathf.PI);
+        enemy = GetComponent<Enemy>();
+        speed = enemy.data.MoveSpeed;
     }
 
     private void FixedUpdate()
