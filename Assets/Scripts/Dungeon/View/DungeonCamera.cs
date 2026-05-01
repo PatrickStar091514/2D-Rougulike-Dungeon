@@ -123,40 +123,21 @@ namespace RogueDungeon.Dungeon.View
         }
 
         /// <summary>
-        /// 首帧落位：优先对齐 followTarget，若为空则回退到 StartRoom 中心
+        /// 首帧落位：直接对齐起始房间中心，后续由 RoomEntered 的 PanToRoom 接管跟随。
         /// </summary>
         private void SnapToInitialTarget()
         {
-            Vector2 target;
-            Rect bounds;
-
-            if (_followTarget != null)
+            var startRoom = GetStartRoom();
+            if (startRoom == null)
             {
-                target = _followTarget.position;
-                var startRoom = GetStartRoom();
-                bounds = startRoom != null
-                    ? CalculateRoomBounds(startRoom)
-                    : new Rect(target.x - 5, target.y - 5, 10, 10);
-            }
-            else
-            {
-                var startRoom = GetStartRoom();
-                if (startRoom != null)
-                {
-                    bounds = CalculateRoomBounds(startRoom);
-                    target = bounds.center;
-                }
-                else
-                {
-                    Debug.LogError("[DungeonCamera] 首帧落位失败: followTarget 和 StartRoom 均不可用");
-                    _initialized = true;
-                    return;
-                }
+                Debug.LogError("[DungeonCamera] 首帧落位失败: StartRoom 不可用");
+                _initialized = true;
+                return;
             }
 
-            _currentBounds = bounds;
-            var clamped = ClampPosition(target, _currentBounds, _orthographicSize, _camera.aspect);
-            transform.position = new Vector3(clamped.x, clamped.y, transform.position.z);
+            _currentBounds = CalculateRoomBounds(startRoom);
+            var target = _currentBounds.center;
+            transform.position = new Vector3(target.x, target.y, transform.position.z);
             _initialized = true;
         }
 

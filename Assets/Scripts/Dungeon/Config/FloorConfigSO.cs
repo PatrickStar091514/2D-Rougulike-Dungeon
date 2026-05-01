@@ -12,6 +12,7 @@ namespace RogueDungeon.Dungeon.Config
     {
         public RoomShape shape; // 形状类型
         public float weight;    // 权重 (≥0)
+        public int enemyCount; // 该形状房间的敌人数量
     }
 
     /// <summary>
@@ -26,6 +27,7 @@ namespace RogueDungeon.Dungeon.Config
         [SerializeField] private int eliteCount = 1;         // 精英房数量
         [SerializeField] private int eventCount = 1;         // 事件房数量
         [SerializeField] private float mergeRate = 0.3f;     // 普通房合并率 [0,1]
+        [SerializeField] private GameObject[] enemyPrefabs;      // 该层敌人预制体
         [SerializeField] private ShapeWeight[] shapeWeights; // 各形状的合并权重
         [SerializeField] private RoomTemplateSO[] templates;  // 可用房间模板列表
 
@@ -46,6 +48,9 @@ namespace RogueDungeon.Dungeon.Config
 
         /// <summary>普通房合并率 [0,1]</summary>
         public float MergeRate => mergeRate;
+
+        /// <summary>该层敌人预制体</summary>
+        public GameObject[] EnemyPrefabs => enemyPrefabs;
 
         /// <summary>各形状的合并权重</summary>
         public ShapeWeight[] ShapeWeights => shapeWeights;

@@ -121,6 +121,12 @@ namespace RogueDungeon.Dungeon.Reward
                 return;
             }
 
+            if (room.Type == RoomType.Event)
+            {
+                EnsureRewardWave(room, 3, RewardSource.ThreeChoice, CompletionState.ToRoomPlaying, false);
+                return;
+            }
+
             if (room.Type == RoomType.Boss)
             {
                 EnsureRewardWave(room, 1, RewardSource.Boss, CompletionState.ToRunEnd, true);

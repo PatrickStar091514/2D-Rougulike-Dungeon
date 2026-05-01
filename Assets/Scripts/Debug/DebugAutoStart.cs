@@ -25,7 +25,6 @@ namespace RogueDungeon.Debugging
 
             GameManager.Instance.ChangeState(GameState.Hub);
             GameManager.Instance.ChangeState(GameState.RunInit);
-            UnityEngine.Debug.Log("[DebugAutoStart] 已自动推进到 RunInit");
         }
     }
 }

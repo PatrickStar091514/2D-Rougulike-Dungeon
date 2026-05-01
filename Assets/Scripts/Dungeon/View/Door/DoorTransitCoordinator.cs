@@ -42,16 +42,16 @@ namespace RogueDungeon.Dungeon.View
         {
             EventCenter.AddListener<DungeonReadyEvent>(
                 GameEventType.DungeonReady, OnDungeonReady);
-            EventCenter.AddListener<RoomClearedEvent>(
-                GameEventType.RoomCleared, OnRoomCleared);
+            EventCenter.AddListener<RewardClaimedEvent>(
+                GameEventType.RewardClaimed, OnRewardClaimed);
         }
 
         private void OnDisable()
         {
             EventCenter.RemoveListener<DungeonReadyEvent>(
                 GameEventType.DungeonReady, OnDungeonReady);
-            EventCenter.RemoveListener<RoomClearedEvent>(
-                GameEventType.RoomCleared, OnRoomCleared);
+            EventCenter.RemoveListener<RewardClaimedEvent>(
+                GameEventType.RewardClaimed, OnRewardClaimed);
 
             // 异常安全：确保场景切换时恢复状态
             ResetTransitState();
@@ -67,19 +67,19 @@ namespace RogueDungeon.Dungeon.View
         }
 
         /// <summary>
-        /// 响应 RoomCleared：解锁对应房间的所有门
+        /// 响应 RewardClaimed（奖励拾取后）：解锁对应房间的所有门
         /// </summary>
-        private void OnRoomCleared(RoomClearedEvent evt)
+        private void OnRewardClaimed(RewardClaimedEvent evt)
         {
             if (string.IsNullOrEmpty(evt.RoomId))
             {
-                Debug.LogWarning("[DoorTransitCoordinator] RoomCleared 事件 RoomId 为空");
+                Debug.LogWarning("[DoorTransitCoordinator] RewardClaimed 事件 RoomId 为空");
                 return;
             }
 
             if (!_viewManager.TryGetRoomView(evt.RoomId, out var roomView))
             {
-                Debug.LogWarning($"[DoorTransitCoordinator] RoomCleared: 未找到房间视图 {evt.RoomId}");
+                Debug.LogWarning($"[DoorTransitCoordinator] RewardClaimed: 未找到房间视图 {evt.RoomId}");
                 return;
             }
 

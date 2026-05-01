@@ -19,10 +19,14 @@ public class RandomMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        startPosition = rb.position;
         timeOffset = Random.Range(0f, 2f * Mathf.PI);
         enemy = GetComponent<Enemy>();
         speed = enemy.data.MoveSpeed;
+    }
+
+    void OnEnable()
+    {
+        startPosition = transform.position;
     }
 
     private void FixedUpdate()
@@ -38,12 +42,6 @@ public class RandomMovement : MonoBehaviour
 
         rb.MovePosition(targetPos);
 
-    }
-
-    public void SetStartPosition(Vector2 position)
-    {
-        startPosition = position;
-        rb.position = position; // ensure rigidbody2d matches
     }
 
     // Update is called once per frame

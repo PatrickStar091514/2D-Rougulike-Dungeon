@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
+using RogueDungeon.Core.Pool;
 
 public enum EnemyType
 {
@@ -11,18 +12,18 @@ public enum EnemyType
 [System.Serializable]
 public class EnemyData
 {
-    private int _maxHP;       // Ë½ÓÐ×Ö¶Î£¬½ûÖ¹Íâ²¿ÐÞ¸Ä
+    private int _maxHP;       // Ë½ï¿½ï¿½ï¿½Ö¶Î£ï¿½ï¿½ï¿½Ö¹ï¿½â²¿ï¿½Þ¸ï¿½
     private int _currentHP;
     private float _moveSpeed;
     private int _damage;
 
-    // Ö»¶ÁÊôÐÔ£¬Íâ²¿Ö»ÄÜ¶ÁÈ¡£¬²»ÄÜÐÞ¸Ä
+    // Ö»ï¿½ï¿½ï¿½ï¿½ï¿½Ô£ï¿½ï¿½â²¿Ö»ï¿½Ü¶ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½
     public int MaxHP => _maxHP;
     public int CurrentHP => _currentHP;
     public float MoveSpeed => _moveSpeed;
     public int Damage => _damage;
 
-    // ½öEnemyÀàÄÚ²¿¿ÉÐÞ¸ÄµÄ·½·¨
+    // ï¿½ï¿½Enemyï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½Þ¸ÄµÄ·ï¿½ï¿½ï¿½
     public void SetBaseStats(int maxHP, int currentHP, float moveSpeed, int damage)
     {
         _maxHP = maxHP;
@@ -37,7 +38,7 @@ public class EnemyData
         _currentHP = Mathf.Max(0, _currentHP);
     }
 }
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IPoolable
 {
     public EnemyType enemyType;
     public EnemyData data;
@@ -47,6 +48,14 @@ public class Enemy : MonoBehaviour
         data = new EnemyData();
         InitEnemyByType();
     }
+
+    public void OnPoolGet()
+    {
+        InitEnemyByType();
+    }
+
+    public void OnPoolRelease() { }
+
     public void InitEnemyByType()
     {
         switch(enemyType)

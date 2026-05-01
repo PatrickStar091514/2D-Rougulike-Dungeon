@@ -18,23 +18,36 @@ MonoBehaviour:
   eliteCount: 2
   eventCount: 2
   mergeRate: 0.95
+  enemyPrefabs:
+  - {fileID: 587536184406145128, guid: 5b77b289f568ce74080d3c722e50d5b6, type: 3}
+  - {fileID: 7592387416000482158, guid: 41670e0b5fd94404bbd380bbf03eb2b8, type: 3}
+  - {fileID: 4563207929418301734, guid: 69489b264ee7cad4fa8c144089f10998, type: 3}
+  - {fileID: 5706756896141226681, guid: ae3f1169e67242d40928a0d461aafecf, type: 3}
   shapeWeights:
   - shape: 0
     weight: 0.1
+    enemyCount: 1
   - shape: 1
     weight: 0.45
+    enemyCount: 3
   - shape: 2
     weight: 0.45
+    enemyCount: 3
   - shape: 3
     weight: 0.2
+    enemyCount: 7
   - shape: 4
     weight: 0.3
+    enemyCount: 5
   - shape: 7
     weight: 0.3
+    enemyCount: 5
   - shape: 5
     weight: 0.3
+    enemyCount: 5
   - shape: 6
     weight: 0.3
+    enemyCount: 5
   templates:
   - {fileID: 11400000, guid: f16f08db7ae224b60a1eb747a915329d, type: 2}
   - {fileID: 11400000, guid: 654f4e70869ca490a9f6c3a2fd3dddb1, type: 2}

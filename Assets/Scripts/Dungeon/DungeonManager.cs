@@ -151,9 +151,6 @@ namespace RogueDungeon.Dungeon
             CurrentRoom.Visited = true;
             SyncDebugFields();
 
-            Debug.Log($"[DungeonManager] 地牢已生成: Floor={floorIndex}, Seed={floorSeed}, " +
-                      $"房间数={map.AllRooms.Count}, Start={map.StartRoomId}, Boss={map.BossRoomId}");
-
             EventCenter.Broadcast(GameEventType.DungeonGenerated, new DungeonGeneratedEvent { Map = map });
         }
 
@@ -181,7 +178,6 @@ namespace RogueDungeon.Dungeon
             CurrentRoom.Visited = true;
             _debugCurrentRoomId = roomId;
 
-            Debug.Log($"[DungeonManager] 进入房间: {roomId}");
             EventCenter.Broadcast(GameEventType.RoomEntered, new RoomEnteredEvent { Room = target });
         }
 

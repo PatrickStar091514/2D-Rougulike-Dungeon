@@ -53,5 +53,15 @@ namespace RogueDungeon.Dungeon.Types
             Visited = false;
             Cleared = false;
         }
+
+        public void TryGetNeighboringRooms(out List<string> neighbors)
+        {
+            neighbors = new List<string>();
+            foreach (var door in Doors)
+            {
+                if (!string.IsNullOrEmpty(door.ConnectedRoomId))
+                    neighbors.Add(door.ConnectedRoomId);
+            }
+        }
     }
 }

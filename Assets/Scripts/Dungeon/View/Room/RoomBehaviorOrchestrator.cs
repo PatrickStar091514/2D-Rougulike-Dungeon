@@ -63,7 +63,7 @@ namespace RogueDungeon.Dungeon.View
         }
 
         /// <summary>
-        /// 响应 DungeonReady：调用起始房间 NotifyEnter，重置 previousRoomId
+        /// 响应 DungeonReady：广播 RoomEntered 使起始房间走统一的 Enter 流程
         /// </summary>
         private void OnDungeonReady(DungeonReadyEvent evt)
         {
@@ -76,12 +76,10 @@ namespace RogueDungeon.Dungeon.View
                 return;
             }
 
-            var startRoomId = dm.CurrentRoom.Id;
-            if (_viewManager.TryGetRoomView(startRoomId, out var startView))
+            EventCenter.Broadcast(GameEventType.RoomEntered, new RoomEnteredEvent
             {
-                startView.NotifyEnter();
-                _previousRoomId = startRoomId;
-            }
+                Room = dm.CurrentRoom
+            });
         }
 
         /// <summary>

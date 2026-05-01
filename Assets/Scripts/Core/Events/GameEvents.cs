@@ -49,9 +49,10 @@ namespace RogueDungeon.Core.Events
     /// </summary>
     public struct EnemyDiedEvent
     {
-        public string EnemyId;  // 敌人 ID
-        public string RoomId;   // 所在房间 ID
-        public int DropSeed;    // 掉落随机种子
+        public int EnemyInstanceID;  // 敌人 GameObject 实例 ID (GetInstanceID)，用于 EnemyRegisterManager 反向查找
+        public string EnemyId;       // 敌人逻辑 ID
+        public string RoomId;        // 所在房间 ID
+        public int DropSeed;         // 掉落随机种子
     }
 
     /// <summary>

@@ -27,7 +27,6 @@ namespace RogueDungeon.Dungeon.View
         /// <inheritdoc/>
         public void OnClear(RoomView room)
         {
-            Debug.Log($"[NormalRoomBehavior] Room cleared: {room.RoomId}");
             var gameManager = GameManager.Instance;
             if (gameManager == null) return;
 
