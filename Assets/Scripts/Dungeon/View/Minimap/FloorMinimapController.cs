@@ -40,6 +40,7 @@ namespace RogueDungeon.Dungeon.View
         [Min(0f)]
         [SerializeField] private float _frameThickness = 2f; // 外框粗细
         [SerializeField] private Sprite _bossIconSprite; // Boss 图标资源
+        [SerializeField] private float _bossIconScale;
 
         [Header("Runtime Debug")]
         [SerializeField] private int _debugCellVisualCount; // 当前房间格子渲染数
@@ -259,6 +260,7 @@ namespace RogueDungeon.Dungeon.View
             bossRect.sizeDelta = _bossIconSize;
             _bossIconImage.raycastTarget = false;
             _bossIconImage.sprite = _bossIconSprite != null ? _bossIconSprite : GetFallbackBossSprite();
+            _bossIconImage.transform.localScale = new Vector3(_bossIconScale, _bossIconScale,_bossIconScale);
             _bossIconImage.gameObject.SetActive(false);
 
             _uiReady = true;

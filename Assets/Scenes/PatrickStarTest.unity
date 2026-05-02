@@ -630,7 +630,8 @@ MonoBehaviour:
   _panelColor: {r: 0.10196079, g: 0.10196079, b: 0.14901961, a: 1}
   _frameColor: {r: 1, g: 0.67058825, b: 0.7294118, a: 1}
   _frameThickness: 2.5
-  _bossIconSprite: {fileID: 0}
+  _bossIconSprite: {fileID: 1071939635, guid: d5fd068935cffe943b0dfbffe563b510, type: 3}
+  _bossIconScale: 2
   _debugCellVisualCount: 0
   _debugLineVisualCount: 0
   _debugCurrentRoomId: 
@@ -774,7 +775,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efcbec30ae7b59b47b36c62063a582bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _randomSeed: 0
+  _randomSeed: -1841349456
   _currentRun:
     RunId: 
     Seed: 0

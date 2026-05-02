@@ -14,14 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buffId: buff_speed_pct
   displayName: Buff_SpeedPercent
-  description: Auto-generated test buff buff_speed_pct
-  icon: {fileID: 21300000, guid: b41881f70acd63a4b99cd3f6151663c5, type: 3}
+  description: "\u6709\u6301\u7EED\u65F6\u95F4\u7684\u79FB\u901FBuff"
+  icon: {fileID: 1135432660, guid: d5fd068935cffe943b0dfbffe563b510, type: 3}
   rarity: 1
-  duration: 0
-  durationValue: 0
-  decayRate: 0.7
-  maxStack: 0
+  duration: 1
+  durationValue: 5
+  decayRate: 1
+  maxStack: 3
+  dropSortingLayer: Drop
+  dropSpriteScale: 1
+  dropColliderRadius: 0.5
   modifiers:
   - Stat: 3
     Type: 1
-    Value: 0.1
+    Value: 0.2

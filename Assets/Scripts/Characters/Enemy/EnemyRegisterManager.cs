@@ -27,6 +27,8 @@ public class EnemyRegisterManager : MonoBehaviour
     [Header("生成约束（与掉落物同步）")]
     [Min(0f)]
     [SerializeField] private float cellEdgePadding = 2f;
+    [Min(0f)]
+    [SerializeField] private float enemyRadius = 0.5f;
     [Min(0.5f)]
     [SerializeField] private float minSpawnDistance = 1.5f;
     [Min(0f)]
@@ -214,7 +216,9 @@ public class EnemyRegisterManager : MonoBehaviour
             return;
         }
 
-        var rng = new SeededRandom(SeededRandom.Hash(_currentMap.GetHashCode(), room.Id));
+        var run = RunManager.Instance?.CurrentRun;
+        int seed = run != null ? SeededRandom.Hash(run.Seed, room.Id) : 0;
+        var rng = new SeededRandom(seed);
         var spawnPositions = GetSpawnPositions(room, enemyCount, rng);
 
         var enemyList = new List<Enemy>(enemyCount);
@@ -313,7 +317,7 @@ public class EnemyRegisterManager : MonoBehaviour
                 room.Cells[i].x * size,
                 room.Cells[i].y * size,
                 size, size);
-            float pad = Mathf.Min(cellEdgePadding, r.width * 0.45f);
+            float pad = Mathf.Min(cellEdgePadding + enemyRadius, r.width * 0.45f);
             cellRects.Add(new Rect(r.x + pad, r.y + pad, r.width - 2 * pad, r.height - 2 * pad));
         }
 

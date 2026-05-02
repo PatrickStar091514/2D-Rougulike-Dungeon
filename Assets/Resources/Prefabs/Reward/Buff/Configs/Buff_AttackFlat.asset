@@ -14,13 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buffId: buff_attack_flat
   displayName: Buff_AttackFlat
-  description: Auto-generated test buff buff_attack_flat
-  icon: {fileID: 21300000, guid: 69a54bef1d898324b81cf9252420cf30, type: 3}
+  description: "\u53EF\u53E0\u52A0\u7684\u9650\u65F6\u653B\u51FB\u529BBuff"
+  icon: {fileID: 854645223, guid: d5fd068935cffe943b0dfbffe563b510, type: 3}
   rarity: 0
-  duration: 0
+  duration: 3
   durationValue: 0
-  decayRate: 0.7
-  maxStack: 0
+  decayRate: 1
+  maxStack: 3
+  dropSortingLayer: Drop
+  dropSpriteScale: 1
+  dropColliderRadius: 0.5
   modifiers:
   - Stat: 1
     Type: 0

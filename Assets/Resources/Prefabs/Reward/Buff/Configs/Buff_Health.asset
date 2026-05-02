@@ -10,18 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 10949387b6e01cd4a902d1a9bbaf7321, type: 3}
-  m_Name: Buff_CritRate
+  m_Name: Buff_Health
   m_EditorClassIdentifier: 
-  buffId: buff_crit_rate
-  displayName: Buff_CritRate
-  description: Auto-generated test buff buff_crit_rate
-  icon: {fileID: 21300000, guid: b7e366d68dcd8594e8a8445a0392c5e4, type: 3}
-  rarity: 2
+  buffId: buff_health
+  displayName: Buff_Health
+  description: "\u63D0\u9AD8\u751F\u547D\u503C\u4E0A\u9650"
+  icon: {fileID: 1749077971, guid: d5fd068935cffe943b0dfbffe563b510, type: 3}
+  rarity: 0
   duration: 0
   durationValue: 0
-  decayRate: 0.7
+  decayRate: 1
   maxStack: 0
+  dropSortingLayer: Drop
+  dropSpriteScale: 1
+  dropColliderRadius: 0.5
   modifiers:
-  - Stat: 5
+  - Stat: 0
     Type: 0
-    Value: 3
+    Value: 5
