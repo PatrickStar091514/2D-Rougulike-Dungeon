@@ -93,19 +93,30 @@ public class EnemyRegisterManager : MonoBehaviour
     private void OnDungeonReady(DungeonReadyEvent evt)
     {
         var dm = DungeonManager.Instance;
-        if (dm == null || dm.CurrentMap == null) return;
+        if (dm == null || dm.CurrentMap == null)
+        {
+            Debug.LogWarning("[EnemyRegisterManager] OnDungeonReady: DungeonManager 或 CurrentMap 为 null");
+            return;
+        }
 
         _currentMap = dm.CurrentMap;
         _currentFloorConfig = GetFloorConfig();
 
-        if (_currentFloorConfig == null) return;
+        if (_currentFloorConfig == null)
+        {
+            Debug.LogWarning("[EnemyRegisterManager] OnDungeonReady: GetFloorConfig 返回 null");
+            return;
+        }
 
         _enemyPrefabs = _currentFloorConfig.EnemyPrefabs;
         if (_enemyPrefabs == null || _enemyPrefabs.Length == 0)
         {
-            Debug.LogWarning("[EnemyRegisterManager] FloorConfig has no enemyPrefabs");
+            Debug.LogWarning($"[EnemyRegisterManager] OnDungeonReady: FloorConfig '{_currentFloorConfig.name}' 的 EnemyPrefabs 为空，跳过初始化。_currentMap 已更新但 ClearAll/RoomEntered 未执行");
             return;
         }
+
+        var run = RunManager.Instance?.CurrentRun;
+        Debug.Log($"[EnemyRegisterManager] OnDungeonReady: FloorIndex={run?.FloorIndex}, Config={_currentFloorConfig.name}, ShapeWeights={_currentFloorConfig.ShapeWeights?.Length ?? 0}, EnemyPrefabs={_enemyPrefabs.Length}");
 
         ClearAll();
 
@@ -129,6 +140,18 @@ public class EnemyRegisterManager : MonoBehaviour
     {
         if (evt.Room == null) return;
 
+        Debug.Log($"[EnemyRegisterManager] OnRoomEntered: Room={evt.Room.Id}, Type={evt.Room.Type}, Cleared={evt.Room.Cleared}");
+
+        // 为相邻未清理房间预生成敌人（必须在 Event/StartRoom/Cleared 判断之前，
+        // 确保 Event 和 Start 房间的邻居也能被预生成）
+        evt.Room.TryGetNeighboringRooms(out var neighbors);
+        foreach (var neighborId in neighbors)
+        {
+            var neighborRoom = _currentMap?.GetRoom(neighborId);
+            if (neighborRoom != null && !neighborRoom.Cleared)
+                GenerateEnemiesForRoom(neighborRoom);
+        }
+
         // 事件房间：立即清理
         if ((evt.Room.Type == RoomType.Event) && !evt.Room.Cleared)
         {
@@ -141,15 +164,10 @@ public class EnemyRegisterManager : MonoBehaviour
             return;
         }
 
-        if (evt.Room.Cleared) return;
-
-        // 为相邻未清理房间预生成敌人
-        evt.Room.TryGetNeighboringRooms(out var neighbors);
-        foreach (var neighborId in neighbors)
+        if (evt.Room.Cleared)
         {
-            var neighborRoom = _currentMap?.GetRoom(neighborId);
-            if (neighborRoom != null && !neighborRoom.Cleared)
-                GenerateEnemiesForRoom(neighborRoom);
+            Debug.Log($"[EnemyRegisterManager] OnRoomEntered: 房间 {evt.Room.Id} 已清理，跳过");
+            return;
         }
 
         if (evt.Room.Type == RoomType.Start)
@@ -164,7 +182,14 @@ public class EnemyRegisterManager : MonoBehaviour
         }
 
         // 激活当前房间敌人
-        ActivateEnemiesInRoom(evt.Room.Id);
+        int activated = ActivateEnemiesInRoom(evt.Room.Id);
+
+        // 保底：Normal/Elite 房间若无敌人，强制生成 1 个
+        if (activated == 0 && (evt.Room.Type == RoomType.Normal || evt.Room.Type == RoomType.Elite))
+        {
+            Debug.LogWarning($"[EnemyRegisterManager] 房间 {evt.Room.Id} (Type={evt.Room.Type}, Shape={evt.Room.Shape}) 激活敌人=0——预生成未覆盖此房间，触发保底生成");
+            GenerateFallbackEnemy(evt.Room);
+        }
     }
 
     /// <summary>
@@ -174,9 +199,22 @@ public class EnemyRegisterManager : MonoBehaviour
     {
         if (!_enemyRoom.TryGetValue(evt.EnemyInstanceID, out var roomId)) return;
 
+        // 解除与房间父物体的关系
+        if (_roomEnemies.TryGetValue(roomId, out var list))
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i] != null && list[i].gameObject.GetInstanceID() == evt.EnemyInstanceID)
+                {
+                    list[i].transform.SetParent(null);
+                    break;
+                }
+            }
+        }
+
         _enemyRoom.Remove(evt.EnemyInstanceID);
 
-        if (_roomEnemies.TryGetValue(roomId, out var list))
+        if (_roomEnemies.TryGetValue(roomId, out list))
         {
             // 清理已销毁的敌人引用
             list.RemoveAll(e => e == null || e.gameObject.GetInstanceID() == evt.EnemyInstanceID);
@@ -207,11 +245,23 @@ public class EnemyRegisterManager : MonoBehaviour
     /// </summary>
     private void GenerateEnemiesForRoom(RoomInstance room)
     {
-        if (_generatedRooms.Contains(room.Id)) return;
+        if (_generatedRooms.Contains(room.Id))
+        {
+            Debug.Log($"[EnemyRegisterManager] GenerateEnemiesForRoom: 房间 {room.Id} 已在 _generatedRooms 中，跳过");
+            return;
+        }
 
         int enemyCount = GetEnemyCountForRoom(room);
-        if (enemyCount <= 0 || _enemyPrefabs == null || _enemyPrefabs.Length == 0)
+        if (enemyCount <= 0)
         {
+            Debug.LogWarning($"[EnemyRegisterManager] GenerateEnemiesForRoom: 房间 {room.Id} (Type={room.Type}, Shape={room.Shape}) enemyCount={enemyCount}，标记为已处理但不生成敌人");
+            _generatedRooms.Add(room.Id);
+            return;
+        }
+
+        if (_enemyPrefabs == null || _enemyPrefabs.Length == 0)
+        {
+            Debug.LogWarning($"[EnemyRegisterManager] GenerateEnemiesForRoom: _enemyPrefabs 为空，房间 {room.Id} 标记已处理但无敌人");
             _generatedRooms.Add(room.Id);
             return;
         }
@@ -219,7 +269,9 @@ public class EnemyRegisterManager : MonoBehaviour
         var run = RunManager.Instance?.CurrentRun;
         int seed = run != null ? SeededRandom.Hash(run.Seed, room.Id) : 0;
         var rng = new SeededRandom(seed);
-        var spawnPositions = GetSpawnPositions(room, enemyCount, rng);
+        var roomView = GetRoomView(room.Id);
+        Vector3 roomRoot = roomView != null ? roomView.transform.position : Vector3.zero;
+        var spawnPositions = GetSpawnPositions(room, enemyCount, rng, roomRoot);
 
         var enemyList = new List<Enemy>(enemyCount);
         for (int i = 0; i < enemyCount; i++)
@@ -228,8 +280,10 @@ public class EnemyRegisterManager : MonoBehaviour
             if (prefab == null) continue;
 
             var go = ObjectPool.Instance.Get(EnemyPoolKey, prefab);
-            go.transform.position = spawnPositions[i];
-            go.transform.rotation = Quaternion.identity;// 挂载到房间视图下，由房间的迷雾系统统一控制显隐
+            if (roomView != null)
+                go.transform.SetParent(roomView.transform, false);
+            go.transform.localPosition = spawnPositions[i];
+            go.transform.localRotation = Quaternion.identity;
 
             var enemy = go.GetComponent<Enemy>();
             if (enemy == null)
@@ -252,15 +306,20 @@ public class EnemyRegisterManager : MonoBehaviour
 
         _roomEnemies[room.Id] = enemyList;
         _generatedRooms.Add(room.Id);
-        Debug.Log($"[EnemyRegisterManager] 为房间 {room.Id} 生成 {enemyList.Count} 个敌人（取消激活）, 位置分别在： {string.Join(", ", spawnPositions)}");
     }
 
     /// <summary>
+    /// <summary>
     /// 激活指定房间的所有敌人。
     /// </summary>
-    private void ActivateEnemiesInRoom(string roomId)
+    /// <returns>实际激活的敌人数量</returns>
+    private int ActivateEnemiesInRoom(string roomId)
     {
-        if (!_roomEnemies.TryGetValue(roomId, out var list)) return;
+        if (!_roomEnemies.TryGetValue(roomId, out var list))
+        {
+            Debug.LogWarning($"[EnemyRegisterManager] ActivateEnemiesInRoom: 房间 {roomId} 在 _roomEnemies 中无条目（从未被预生成）");
+            return 0;
+        }
 
         int activated = 0;
         foreach (var enemy in list)
@@ -270,8 +329,45 @@ public class EnemyRegisterManager : MonoBehaviour
             activated++;
         }
 
-        Debug.Log($"[EnemyRegisterManager] 房间 {roomId} 激活 {activated} 个敌人");
+        return activated;
     }
+
+    /// <summary>
+    /// 保底生成：为无敌人房间强制创建 1 个敌人并激活
+    /// </summary>
+    /// <param name="room">目标房间</param>
+    private void GenerateFallbackEnemy(RoomInstance room)
+    {
+        if (_enemyPrefabs == null || _enemyPrefabs.Length == 0) return;
+
+        var roomView = GetRoomView(room.Id);
+        Vector3 roomRoot = roomView != null ? roomView.transform.position : Vector3.zero;
+
+        var prefab = _enemyPrefabs[0]; // 取首个可用预制体
+        var go = ObjectPool.Instance.Get(EnemyPoolKey, prefab);
+
+        if (roomView != null)
+            go.transform.SetParent(roomView.transform, false);
+        go.transform.localPosition = Vector3.zero; // 房间中心
+        go.transform.localRotation = Quaternion.identity;
+
+        var enemy = go.GetComponent<Enemy>();
+        if (enemy == null)
+        {
+            ObjectPool.Instance.Release(EnemyPoolKey, go);
+            return;
+        }
+
+        go.SetActive(true);
+
+        var list = new List<Enemy> { enemy };
+        _roomEnemies[room.Id] = list;
+        _enemyRoom[go.GetInstanceID()] = room.Id;
+        _generatedRooms.Add(room.Id);
+
+        Debug.Log($"[EnemyRegisterManager] 保底生成 1 个敌人 ({prefab.name}) → 房间 {room.Id}, 位置={roomRoot}");
+    }
+
     private static RoomView GetRoomView(string roomId)
         {
             var viewManager = Object.FindFirstObjectByType<DungeonViewManager>();
@@ -285,20 +381,26 @@ public class EnemyRegisterManager : MonoBehaviour
     /// </summary>
     private int GetEnemyCountForRoom(RoomInstance room)
     {
-        if (_currentFloorConfig?.ShapeWeights == null) return 0;
+        if (_currentFloorConfig?.ShapeWeights == null)
+        {
+            Debug.LogWarning($"[EnemyRegisterManager] GetEnemyCountForRoom: _currentFloorConfig 或 ShapeWeights 为 null (Config={_currentFloorConfig?.name})");
+            return 0;
+        }
 
         foreach (var sw in _currentFloorConfig.ShapeWeights)
         {
             if (sw.shape == room.Shape)
                 return sw.enemyCount;
         }
+
+        Debug.LogWarning($"[EnemyRegisterManager] GetEnemyCountForRoom: 房间 {room.Id} 的 Shape={room.Shape} 在 FloorConfig '{_currentFloorConfig.name}' 的 ShapeWeights 中未找到匹配项。可用 ShapeWeights: {string.Join(", ", System.Array.ConvertAll(_currentFloorConfig.ShapeWeights, s => $"{s.shape}={s.enemyCount}"))}");
         return 0;
     }
 
     /// <summary>
     /// 在房间 Cell 中随机生成不重叠的敌人生成位置，约束与掉落物一致。
     /// </summary>
-    private List<Vector3> GetSpawnPositions(RoomInstance room, int count, SeededRandom rng)
+    private List<Vector3> GetSpawnPositions(RoomInstance room, int count, SeededRandom rng, Vector3 roomRoot)
     {
         var positions = new List<Vector3>(count);
 
@@ -322,6 +424,11 @@ public class EnemyRegisterManager : MonoBehaviour
         }
 
         positions = TryPlacePosition(cellRects, count, rng, positions);
+
+        // 世界坐标转房间本地坐标
+        for (int i = 0; i < positions.Count; i++)
+            positions[i] -= roomRoot;
+
         if (positions.Count < count)
         {
             Debug.LogWarning($"[EnemyRegisterManager] 房间 {room.Id} 生成敌人位置不足: 目标 {count}, 实际 {positions.Count}");

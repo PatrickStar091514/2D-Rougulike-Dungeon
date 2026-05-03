@@ -19,6 +19,8 @@ namespace RogueDungeon.Core.Events
         BuffApplied = 11,      // Buff 被应用
         BuffExpired = 12,      // Buff 过期移除
         BuffStackChanged = 13, // Buff 叠加层数变化
-        RewardClaimed = 14     // 奖励已领取
+        RewardClaimed = 14,    // 奖励已领取
+        FloorBossDefeated = 15, // Boss 被击杀（Portal 生成信号）
+        FloorCompleted = 16     // 楼层完成（玩家进入 Portal）
     }
 }

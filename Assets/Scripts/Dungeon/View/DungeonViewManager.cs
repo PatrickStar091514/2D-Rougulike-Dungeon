@@ -1,9 +1,12 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RogueDungeon.Core.Events;
+using RogueDungeon.Core.Pool;
 using RogueDungeon.Dungeon.Types;
 using RogueDungeon.Dungeon.Config;
 using RogueDungeon.Dungeon.Map;
+using RogueDungeon.Data.Runtime;
 
 namespace RogueDungeon.Dungeon.View
 {
@@ -11,6 +14,7 @@ namespace RogueDungeon.Dungeon.View
     /// 地牢视图管理器，消费 DungeonGenerated 事件执行全量实例化，
     /// 响应 RoomEntered 更新迷雾状态，完成后广播 DungeonReady。
     /// 场景级 MonoBehaviour（非 Singleton），生命周期与场景绑定。
+    /// 支持双 FloorRoot 滑动窗口预加载，房间实例通过 ObjectPool 复用。
     /// </summary>
     public class DungeonViewManager : MonoBehaviour
     {
@@ -27,14 +31,25 @@ namespace RogueDungeon.Dungeon.View
         private readonly Dictionary<string, RoomView> _roomViews = new(); // roomId → RoomView 索引
         private DungeonMap _currentMap; // 当前关联的地牢地图
 
+        private Transform[] _floorRoots; // 双 Floor Root 节点（Size=2）
+        private int _activeFloorRootIndex; // 当前活跃 FloorRoot 索引
+
         [Header("Runtime Debug")]
         [SerializeField] private int _debugRoomViewCount; // 已实例化房间视图数
+        [SerializeField] private int _debugActiveFloorRoot; // 当前活跃 FloorRoot 索引
+        [SerializeField] private int _debugFloor0RoomCount; // Floor 0 房间数
+        [SerializeField] private int _debugFloor1RoomCount; // Floor 1 房间数
 
         private void OnValidate()
         {
             if (_cellWorldSize < MinCellWorldSize)
                 _cellWorldSize = MinCellWorldSize;
             ApplyCellWorldSize();
+        }
+
+        private void Awake()
+        {
+            EnsureFloorRoots();
         }
 
         private void OnEnable()
@@ -52,6 +67,35 @@ namespace RogueDungeon.Dungeon.View
                 GameEventType.DungeonGenerated, OnDungeonGenerated);
             EventCenter.RemoveListener<RoomEnteredEvent>(
                 GameEventType.RoomEntered, OnRoomEntered);
+        }
+
+        /// <summary>
+        /// 确保双 FloorRoot 子节点存在
+        /// </summary>
+        private void EnsureFloorRoots()
+        {
+            if (_floorRoots != null && _floorRoots.Length == 2
+                && _floorRoots[0] != null && _floorRoots[1] != null)
+                return;
+
+            _floorRoots = new Transform[2];
+            for (int i = 0; i < 2; i++)
+            {
+                var rootName = $"FloorRoot_{i}";
+                var existing = transform.Find(rootName);
+                if (existing != null)
+                {
+                    _floorRoots[i] = existing;
+                }
+                else
+                {
+                    var go = new GameObject(rootName);
+                    go.transform.SetParent(transform);
+                    go.transform.localPosition = Vector3.zero;
+                    go.SetActive(false);
+                    _floorRoots[i] = go.transform;
+                }
+            }
         }
 
         /// <summary>
@@ -89,7 +133,135 @@ namespace RogueDungeon.Dungeon.View
         public IEnumerable<RoomView> AllRoomViews => _roomViews.Values;
 
         /// <summary>
-        /// 响应 DungeonGenerated：清理旧视图 → 全量实例化 → 初始化迷雾 → 广播 DungeonReady
+        /// 切换活跃 FloorRoot
+        /// </summary>
+        /// <param name="slotIndex">目标 Slot 索引（0 或 1）</param>
+        public void SwitchActiveRoot(int slotIndex)
+        {
+            if (_floorRoots == null || slotIndex < 0 || slotIndex >= _floorRoots.Length)
+                return;
+
+            // 停用旧 Root
+            if (_floorRoots[_activeFloorRootIndex] != null)
+                _floorRoots[_activeFloorRootIndex].gameObject.SetActive(false);
+
+            _activeFloorRootIndex = slotIndex;
+            _debugActiveFloorRoot = slotIndex;
+
+            // 激活新 Root
+            if (_floorRoots[slotIndex] != null)
+                _floorRoots[slotIndex].gameObject.SetActive(true);
+
+        }
+
+        /// <summary>
+        /// 分帧实例化所有房间到指定 Slot（协程，供预加载使用）
+        /// </summary>
+        /// <param name="map">目标地牢地图</param>
+        /// <param name="slotIndex">目标 Slot 索引</param>
+        public IEnumerator InstantiateFloorAsync(DungeonMap map, int slotIndex)
+        {
+            if (map == null || map.AllRooms == null)
+            {
+                Debug.LogWarning("[DungeonViewManager] InstantiateFloorAsync: map 为空");
+                yield break;
+            }
+
+            EnsureFloorRoots();
+            var root = _floorRoots[slotIndex];
+            if (root == null)
+            {
+                Debug.LogError($"[DungeonViewManager] FloorRoot_{slotIndex} 不存在");
+                yield break;
+            }
+
+            int count = 0;
+            foreach (var room in map.AllRooms)
+            {
+                var go = InstantiateRoom(room, root);
+                if (go == null) continue;
+
+                var roomView = go.GetComponent<RoomView>();
+                if (roomView == null) roomView = go.AddComponent<RoomView>();
+                roomView.Initialize(room); // 迷雾、门、行为
+
+                count++;
+                yield return null; // 分帧
+            }
+
+            root.gameObject.SetActive(false);
+
+            if (slotIndex == 0) _debugFloor0RoomCount = count;
+            else _debugFloor1RoomCount = count;
+
+        }
+
+        /// <summary>
+        /// 释放指定 Slot 下所有房间视图到对象池
+        /// </summary>
+        /// <param name="slotIndex">目标 Slot 索引</param>
+        public void ReleaseFloorSlot(int slotIndex)
+        {
+            if (_floorRoots == null || slotIndex < 0 || slotIndex >= _floorRoots.Length)
+                return;
+
+            var root = _floorRoots[slotIndex];
+            if (root == null) return;
+
+            var views = root.GetComponentsInChildren<RoomView>(true);
+            foreach (var view in views)
+            {
+                if (view == null) continue;
+                var roomId = view.RoomId;
+                if (!string.IsNullOrEmpty(roomId))
+                    _roomViews.Remove(roomId);
+
+                var templateId = view.Room?.Template?.TemplateId;
+                if (!string.IsNullOrEmpty(templateId))
+                {
+                    var poolKey = $"Room_{templateId}";
+                    ObjectPool.Instance.Release(poolKey, view.gameObject);
+                }
+                else
+                {
+                    // 无法确定池 Key，直接销毁
+                    Destroy(view.gameObject);
+                }
+            }
+
+            if (slotIndex == 0) _debugFloor0RoomCount = 0;
+            else _debugFloor1RoomCount = 0;
+        }
+
+        /// <summary>
+        /// 将指定 Slot 下所有已初始化的房间视图注册到 _roomViews 字典（过渡时调用）
+        /// </summary>
+        /// <param name="slotIndex">目标 Slot 索引</param>
+        public void RegisterFloorRooms(int slotIndex)
+        {
+            if (_floorRoots == null || slotIndex < 0 || slotIndex >= _floorRoots.Length) return;
+            var root = _floorRoots[slotIndex];
+            if (root == null) return;
+
+            var views = root.GetComponentsInChildren<RoomView>(true);
+            foreach (var view in views)
+            {
+                if (view == null || string.IsNullOrEmpty(view.RoomId)) continue;
+                _roomViews[view.RoomId] = view;
+            }
+        }
+
+        /// <summary>
+        /// 更新当前地图引用（过渡时调用）
+        /// </summary>
+        /// <param name="map">新楼层地牢地图</param>
+        public void SetCurrentMap(DungeonMap map)
+        {
+            _currentMap = map;
+        }
+
+        /// <summary>
+        /// 响应 DungeonGenerated：释放旧 Slot → 全量实例化到新 Slot → 初始化迷雾 → 广播 DungeonReady
         /// </summary>
         private void OnDungeonGenerated(DungeonGeneratedEvent evt)
         {
@@ -100,22 +272,25 @@ namespace RogueDungeon.Dungeon.View
                 return;
             }
 
-            ClearPrevious();
+            EnsureFloorRoots();
+
+            // 首层 DungeonGenerated 时释放旧视图
+            ReleasePreviousIfAny();
             _currentMap = map;
 
-            // 全量实例化所有房间
+            // 确定目标 Slot
+            var dm = Dungeon.DungeonManager.Instance;
+            int targetSlot = dm != null
+                ? (RunManager.Instance?.CurrentRun?.FloorIndex ?? 0) % 2
+                : 0;
+
+            var root = _floorRoots[targetSlot];
+
+            // 全量实例化所有房间到目标 Slot
             foreach (var room in map.AllRooms)
             {
-                if (room.Template == null || room.Template.Prefab == null)
-                {
-                    Debug.LogWarning($"[DungeonViewManager] Room '{room.Id}' has no template/prefab, skipping");
-                    continue;
-                }
-
-                var worldPos = CalculateRoomRootPosition(room);
-
-                var go = Instantiate(room.Template.Prefab, worldPos, Quaternion.identity, transform);
-                go.name = $"Room_{room.Id}";
+                var go = InstantiateRoom(room, root);
+                if (go == null) continue;
 
                 var roomView = go.GetComponent<RoomView>();
                 if (roomView == null)
@@ -124,6 +299,9 @@ namespace RogueDungeon.Dungeon.View
                 roomView.Initialize(room);
                 _roomViews[room.Id] = roomView;
             }
+
+            // 激活目标 FloorRoot
+            SwitchActiveRoot(targetSlot);
 
             // 起始房间 Revealed，其余保持 Hidden
             if (!string.IsNullOrEmpty(map.StartRoomId) && _roomViews.TryGetValue(map.StartRoomId, out var startView))
@@ -136,6 +314,58 @@ namespace RogueDungeon.Dungeon.View
             // 广播 DungeonReady
             _debugRoomViewCount = _roomViews.Count;
             EventCenter.Broadcast(GameEventType.DungeonReady, new DungeonReadyEvent());
+        }
+
+        /// <summary>
+        /// 从对象池获取房间实例（若池空则 Instantiate 新实例）
+        /// </summary>
+        private static GameObject InstantiateRoom(RoomInstance room, Transform parent)
+        {
+            if (room.Template == null || room.Template.Prefab == null)
+            {
+                Debug.LogWarning($"[DungeonViewManager] Room '{room.Id}' has no template/prefab, skipping");
+                return null;
+            }
+
+            var worldPos = CalculateRoomRootPosition(room);
+            var poolKey = $"Room_{room.Template.TemplateId}";
+
+            var go = ObjectPool.Instance.Get(poolKey, room.Template.Prefab);
+            go.transform.SetPositionAndRotation(worldPos, Quaternion.identity);
+            go.transform.SetParent(parent);
+            go.name = $"Room_{room.Id}";
+
+            return go;
+        }
+
+        /// <summary>
+        /// 释放之前活跃 Slot 下的所有房间视图
+        /// </summary>
+        private void ReleasePreviousIfAny()
+        {
+            if (_floorRoots == null) return;
+
+            int oldSlot = _activeFloorRootIndex;
+            if (_floorRoots[oldSlot] == null) return;
+
+            var views = _floorRoots[oldSlot].GetComponentsInChildren<RoomView>(true);
+            foreach (var view in views)
+            {
+                if (view == null) continue;
+                var roomId = view.RoomId;
+                if (!string.IsNullOrEmpty(roomId))
+                    _roomViews.Remove(roomId);
+
+                var templateId = view.Room?.Template?.TemplateId;
+                if (!string.IsNullOrEmpty(templateId))
+                {
+                    var poolKey = $"Room_{templateId}";
+                    ObjectPool.Instance.Release(poolKey, view.gameObject);
+                }
+            }
+
+            _currentMap = null;
+            _debugRoomViewCount = 0;
         }
 
         /// <summary>
@@ -167,21 +397,6 @@ namespace RogueDungeon.Dungeon.View
                         neighborView.SetVisibility(RoomVisibility.Silhouette);
                 }
             }
-        }
-
-        /// <summary>
-        /// 销毁所有旧房间视图 GameObject，清空索引
-        /// </summary>
-        private void ClearPrevious()
-        {
-            foreach (var kvp in _roomViews)
-            {
-                if (kvp.Value != null && kvp.Value.gameObject != null)
-                    Destroy(kvp.Value.gameObject);
-            }
-            _roomViews.Clear();
-            _currentMap = null;
-            _debugRoomViewCount = 0;
         }
 
         /// <summary>

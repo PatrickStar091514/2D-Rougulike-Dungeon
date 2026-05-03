@@ -33,7 +33,8 @@ namespace RogueDungeon.Dungeon.Reward
         {
             None = 0,
             ToRoomPlaying = 1,
-            ToRunEnd = 2
+            ToRunEnd = 2,
+            ToBossReward = 3  // 非最终层 Boss 奖励后回到 RoomPlaying（Portal 在场）
         }
 
         public static RewardSpawner Instance { get; private set; }
@@ -129,7 +130,11 @@ namespace RogueDungeon.Dungeon.Reward
 
             if (room.Type == RoomType.Boss)
             {
-                EnsureRewardWave(room, 1, RewardSource.Boss, CompletionState.ToRunEnd, true);
+                int floorIndex = RunManager.Instance?.CurrentRun?.FloorIndex ?? 0;
+                int totalFloors = DungeonManager.Instance?.TotalFloors ?? 1;
+                bool isLastFloor = floorIndex >= totalFloors - 1;
+                var state = isLastFloor ? CompletionState.ToRunEnd : CompletionState.ToBossReward;
+                EnsureRewardWave(room, 1, RewardSource.Boss, state, true);
             }
         }
 
@@ -339,6 +344,7 @@ namespace RogueDungeon.Dungeon.Reward
             switch (_completionState)
             {
                 case CompletionState.ToRoomPlaying:
+                case CompletionState.ToBossReward:
                     if (gameManager.CurrentState != GameState.RoomPlaying)
                         gameManager.ChangeState(GameState.RoomPlaying);
                     break;

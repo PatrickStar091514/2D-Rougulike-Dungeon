@@ -1,10 +1,13 @@
 using RogueDungeon.Core;
+using RogueDungeon.Core.Events;
+using RogueDungeon.Data.Runtime;
 using UnityEngine;
 
 namespace RogueDungeon.Dungeon.View
 {
     /// <summary>
-    /// Boss 房间行为。OnEnter 锁门并记录 Boss 战开始日志，OnClear 记录 Boss 击败日志。
+    /// Boss 房间行为。OnEnter 锁门并记录 Boss 战开始日志，
+    /// OnClear 解锁房门、广播 FloorBossDefeated 事件、触发奖励阶段。
     /// </summary>
     public class BossRoomBehavior : IRoomBehavior
     {
@@ -14,7 +17,6 @@ namespace RogueDungeon.Dungeon.View
             // 已清理的 Boss 房间不再锁门
             if (room.Room.Cleared) return;
 
-            Debug.Log($"[BossRoomBehavior] Boss room entered: {room.RoomId}");
 
             foreach (var door in room.ActiveDoors)
             {
@@ -26,7 +28,22 @@ namespace RogueDungeon.Dungeon.View
         /// <inheritdoc/>
         public void OnClear(RoomView room)
         {
-            Debug.Log($"[BossRoomBehavior] Boss defeated: {room.RoomId}");
+
+            // 解锁 Boss 房门，让玩家自由进出（清理剩余房间或使用 Portal）
+            foreach (var door in room.ActiveDoors)
+            {
+                if (door.State == DoorState.Locked)
+                    door.Unlock();
+            }
+
+            // 通知 Portal 系统生成传送门
+            var run = RunManager.Instance?.CurrentRun;
+            EventCenter.Broadcast(GameEventType.FloorBossDefeated, new FloorBossDefeatedEvent
+            {
+                RoomId = room.RoomId,
+                FloorIndex = run?.FloorIndex ?? 0
+            });
+
             var gameManager = GameManager.Instance;
             if (gameManager == null) return;
 

@@ -129,6 +129,7 @@ namespace RogueDungeon.Dungeon.View
         private void OnEnable()
         {
             EventCenter.AddListener<DungeonGeneratedEvent>(GameEventType.DungeonGenerated, OnDungeonGenerated);
+            EventCenter.AddListener<DungeonReadyEvent>(GameEventType.DungeonReady, OnDungeonReady);
             EventCenter.AddListener<RoomEnteredEvent>(GameEventType.RoomEntered, OnRoomEntered);
             EventCenter.AddListener<RoomClearedEvent>(GameEventType.RoomCleared, OnRoomCleared);
         }
@@ -136,6 +137,7 @@ namespace RogueDungeon.Dungeon.View
         private void OnDisable()
         {
             EventCenter.RemoveListener<DungeonGeneratedEvent>(GameEventType.DungeonGenerated, OnDungeonGenerated);
+            EventCenter.RemoveListener<DungeonReadyEvent>(GameEventType.DungeonReady, OnDungeonReady);
             EventCenter.RemoveListener<RoomEnteredEvent>(GameEventType.RoomEntered, OnRoomEntered);
             EventCenter.RemoveListener<RoomClearedEvent>(GameEventType.RoomCleared, OnRoomCleared);
         }
@@ -178,6 +180,28 @@ namespace RogueDungeon.Dungeon.View
                 return;
 
             RebuildFromMap(evt.Map);
+            RefreshVisuals();
+        }
+
+        /// <summary>
+        /// 处理地牢就绪事件：跨层过渡后从 DungeonManager 拉取新层地图刷新小地图。
+        /// </summary>
+        /// <param name="evt">地牢就绪事件</param>
+        private void OnDungeonReady(DungeonReadyEvent evt)
+        {
+            var map = DungeonManager.Instance?.CurrentMap;
+            if (map == null || map.AllRooms == null || map.AllRooms.Count == 0)
+                return;
+
+            // 若地图未变化则跳过（首层已由 OnDungeonGenerated 处理）
+            if (map == _currentMap)
+                return;
+
+            _currentMap = map;
+            if (!EnsureUiHierarchy())
+                return;
+
+            RebuildFromMap(map);
             RefreshVisuals();
         }
 

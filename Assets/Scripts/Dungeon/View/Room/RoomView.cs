@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using RogueDungeon.Core.Pool;
 using RogueDungeon.Dungeon.Types;
 using RogueDungeon.Dungeon.Config;
 using RogueDungeon.Dungeon.Map;
@@ -10,8 +11,9 @@ namespace RogueDungeon.Dungeon.View
     /// <summary>
     /// 房间视图组件，挂载在每个房间 Prefab 实例根节点上。
     /// 持有运行时 RoomInstance 引用、管理可见性状态、绑定子 DoorView。
+    /// 实现 IPoolable 支持对象池复用。
     /// </summary>
-    public class RoomView : MonoBehaviour, ISpawnPointProvider
+    public class RoomView : MonoBehaviour, ISpawnPointProvider, IPoolable
     {
         private RoomInstance _room;                // 绑定的运行时房间数据
         [SerializeField] private RoomVisibility _visibility; // 当前可见性状态
@@ -230,6 +232,44 @@ namespace RogueDungeon.Dungeon.View
                 return;
             }
             Behavior.OnExit(this);
+        }
+
+        /// <summary>
+        /// 从对象池取出时回调（状态在 Initialize 中设置）
+        /// </summary>
+        public void OnPoolGet()
+        {
+            // 状态由 Initialize 完整设置，此处无需操作
+        }
+
+        /// <summary>
+        /// 回收到对象池时回调，清理所有运行时状态
+        /// </summary>
+        public void OnPoolRelease()
+        {
+            // 清理 DoorView 组件防止下次 BindDoorViews 重复或引用过期
+            foreach (var door in _activeDoors)
+            {
+                if (door != null)
+                    Destroy(door);
+            }
+            _activeDoors.Clear();
+
+            // 停用所有 DoorSlot 子物体
+            var allTransforms = GetComponentsInChildren<Transform>(true);
+            foreach (var t in allTransforms)
+            {
+                if (t != null && t.name.StartsWith("DoorSlot", StringComparison.Ordinal))
+                    t.gameObject.SetActive(false);
+            }
+
+            // 重置状态引用
+            _room = null;
+            _fogController = null;
+            _spawnPoints = null;
+            Behavior = null;
+            _visibility = RoomVisibility.Hidden;
+            _debugRoomId = null;
         }
     }
 }

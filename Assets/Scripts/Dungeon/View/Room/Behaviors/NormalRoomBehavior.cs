@@ -15,7 +15,6 @@ namespace RogueDungeon.Dungeon.View
             // 已清理的房间不再锁门（re-entry guard）
             if (room.Room.Cleared) return;
 
-            Debug.Log($"[NormalRoomBehavior] Normal room entered, locking doors: {room.RoomId}");
 
             foreach (var door in room.ActiveDoors)
             {
