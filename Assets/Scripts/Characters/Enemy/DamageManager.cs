@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using RogueDungeon.Core.Pool;
 
 public class DamageManager : MonoBehaviour
 {
@@ -43,12 +44,18 @@ public class DamageManager : MonoBehaviour
         UpdatePlayerAttack();
         if (collision.gameObject.CompareTag("PlayerBullet"))
         {
-            Destroy(collision.gameObject);
 
             enemy.data.TakeDamage(currentPlayerAttack);
             if (enemy.data.CurrentHP <= 0)
             {
-                Destroy(gameObject);
+                EventCenter.Broadcast(GameEventType.EnemyDied, new EnemyDiedEvent
+                {
+                    EnemyInstanceID = gameObject.GetInstanceID(),
+                    EnemyId = gameObject.name,
+                    RoomId = "",
+                    DropSeed = UnityEngine.Random.Range(0, int.MaxValue)
+                });
+                ObjectPool.Instance.Release(EnemyRegisterManager.EnemyPoolKey, gameObject);
             }
         }
     }

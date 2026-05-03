@@ -91,6 +91,7 @@ namespace RogueDungeon.Data.Runtime
                     RunId = System.Guid.NewGuid().ToString("N"),
                     Seed = _randomSeed != 0 ? _randomSeed : Random.Range(int.MinValue, int.MaxValue)
                 };
+                _randomSeed = _currentRun.Seed; // 同步 Inspector 显示的种子值
                 Debug.Log($"[RunManager] Run 已创建: {_currentRun.RunId}, Seed: {_currentRun.Seed}");
             }
 

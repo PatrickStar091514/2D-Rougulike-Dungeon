@@ -41,8 +41,8 @@ namespace RogueDungeon.Core.Pool
             if (_pools.TryGetValue(key, out var queue) && queue.Count > 0)
             {
                 obj = queue.Dequeue();
-                obj.transform.SetParent(null);
                 obj.SetActive(true);
+                obj.transform.SetParent(null);
             }
             else
             {

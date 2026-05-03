@@ -49,9 +49,10 @@ namespace RogueDungeon.Core.Events
     /// </summary>
     public struct EnemyDiedEvent
     {
-        public string EnemyId;  // 敌人 ID
-        public string RoomId;   // 所在房间 ID
-        public int DropSeed;    // 掉落随机种子
+        public int EnemyInstanceID;  // 敌人 GameObject 实例 ID (GetInstanceID)，用于 EnemyRegisterManager 反向查找
+        public string EnemyId;       // 敌人逻辑 ID
+        public string RoomId;        // 所在房间 ID
+        public int DropSeed;         // 掉落随机种子
     }
 
     /// <summary>
@@ -109,5 +110,23 @@ namespace RogueDungeon.Core.Events
     {
         public BuffSnapshot Snapshot; // Buff 运行时快照
         public string RoomId;         // 奖励所在房间 ID
+    }
+
+    /// <summary>
+    /// Boss 被击杀事件 Payload（通知生成 Portal）
+    /// </summary>
+    public struct FloorBossDefeatedEvent
+    {
+        public string RoomId;     // Boss 房间 ID
+        public int FloorIndex;    // 当前楼层索引
+    }
+
+    /// <summary>
+    /// 楼层完成事件 Payload（玩家进入 Portal 后触发）
+    /// </summary>
+    public struct FloorCompletedEvent
+    {
+        public int FromFloorIndex; // 离开的楼层索引
+        public int ToFloorIndex;   // 进入的楼层索引
     }
 }

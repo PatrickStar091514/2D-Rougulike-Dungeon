@@ -19,10 +19,14 @@ public class RandomMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        startPosition = rb.position;
         timeOffset = Random.Range(0f, 2f * Mathf.PI);
         enemy = GetComponent<Enemy>();
         speed = enemy.data.MoveSpeed;
+    }
+
+    void OnEnable()
+    {
+        startPosition = transform.localPosition;
     }
 
     private void FixedUpdate()
@@ -32,18 +36,13 @@ public class RandomMovement : MonoBehaviour
         float yOffset = Mathf.Cos(Time.fixedTime * frequencyY + timeOffset) * amplitudeY;
         Vector2 offset = new Vector2(xOffset, yOffset);
 
-        // account for parent position if any
-        Vector2 parentPos = transform.parent != null ? (Vector2)transform.parent.position : Vector2.zero;
-        Vector2 targetPos = startPosition + offset + parentPos;
+        // 本地坐标 + 偏移 → 通过父物体转换为世界坐标
+        Vector2 targetLocalPos = startPosition + offset;
+        Vector2 targetWorldPos = transform.parent != null
+            ? (Vector2)transform.parent.TransformPoint(targetLocalPos)
+            : targetLocalPos;
 
-        rb.MovePosition(targetPos);
-
-    }
-
-    public void SetStartPosition(Vector2 position)
-    {
-        startPosition = position;
-        rb.position = position; // ensure rigidbody2d matches
+        rb.MovePosition(targetWorldPos);
     }
 
     // Update is called once per frame

@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76f376c169d48704baa88bdebf097547, type: 3}
-  m_Name: Floor1
+  m_Name: Floor3
   m_EditorClassIdentifier: 
-  gridWidth: 3
-  gridHeight: 6
-  targetRoomCount: 14
-  eliteCount: 2
+  gridWidth: 4
+  gridHeight: 8
+  targetRoomCount: 28
+  eliteCount: 4
   eventCount: 2
-  mergeRate: 0.95
+  mergeRate: 0.97
   enemyPrefabs:
   - {fileID: 587536184406145128, guid: 5b77b289f568ce74080d3c722e50d5b6, type: 3}
   - {fileID: 7592387416000482158, guid: 41670e0b5fd94404bbd380bbf03eb2b8, type: 3}
@@ -29,25 +29,25 @@ MonoBehaviour:
     enemyCount: 1
   - shape: 1
     weight: 0.45
-    enemyCount: 3
+    enemyCount: 4
   - shape: 2
     weight: 0.45
-    enemyCount: 3
+    enemyCount: 4
   - shape: 3
     weight: 0.2
-    enemyCount: 7
+    enemyCount: 10
   - shape: 4
     weight: 0.3
-    enemyCount: 5
+    enemyCount: 7
   - shape: 7
     weight: 0.3
-    enemyCount: 5
+    enemyCount: 7
   - shape: 5
     weight: 0.3
-    enemyCount: 5
+    enemyCount: 7
   - shape: 6
     weight: 0.3
-    enemyCount: 5
+    enemyCount: 7
   templates:
   - {fileID: 11400000, guid: f16f08db7ae224b60a1eb747a915329d, type: 2}
   - {fileID: 11400000, guid: 654f4e70869ca490a9f6c3a2fd3dddb1, type: 2}

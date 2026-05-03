@@ -17,5 +17,5 @@ MonoBehaviour:
     Weight: 1
   - Buff: {fileID: 11400000, guid: 28f2341722710b144b91587f246cc881, type: 2}
     Weight: 1
-  - Buff: {fileID: 11400000, guid: 06430a59d859c5940a77df1fd27bc047, type: 2}
+  - Buff: {fileID: 11400000, guid: d24a4fa03fc55814e8fba5080af98296, type: 2}
     Weight: 1

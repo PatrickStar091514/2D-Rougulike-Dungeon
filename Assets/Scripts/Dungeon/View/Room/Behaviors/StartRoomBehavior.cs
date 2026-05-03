@@ -10,7 +10,6 @@ namespace RogueDungeon.Dungeon.View
         /// <inheritdoc/>
         public void OnEnter(RoomView room)
         {
-            Debug.Log($"[StartRoomBehavior] Start room entered: {room.RoomId}");
         }
 
         /// <inheritdoc/>
