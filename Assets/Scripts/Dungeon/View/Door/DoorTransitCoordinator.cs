@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using RogueDungeon.Core.Events;
 using RogueDungeon.Dungeon.Types;
 using RogueDungeon.Dungeon.Config;
@@ -31,6 +32,7 @@ namespace RogueDungeon.Dungeon.View
 
         private void Awake()
         {
+            SceneManager.sceneLoaded += OnSceneLoaded;
             if (_viewManager == null)
             {
                 Debug.LogError("[DoorTransitCoordinator] viewManager 未赋值，组件已禁用");
@@ -40,21 +42,42 @@ namespace RogueDungeon.Dungeon.View
 
         private void OnEnable()
         {
+            RegisterEvents();
+        }
+
+        private void OnDisable()
+        {
+            UnregisterEvents();
+            ResetTransitState();
+        }
+
+        private void OnDestroy()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            UnregisterEvents();
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            Debug.Log($"[DEBUG] DoorTransitCoordinator.OnSceneLoaded scene={scene.name} mode={mode}");
+            RegisterEvents();
+        }
+
+        private void RegisterEvents()
+        {
+            UnregisterEvents();
             EventCenter.AddListener<DungeonReadyEvent>(
                 GameEventType.DungeonReady, OnDungeonReady);
             EventCenter.AddListener<RewardClaimedEvent>(
                 GameEventType.RewardClaimed, OnRewardClaimed);
         }
 
-        private void OnDisable()
+        private void UnregisterEvents()
         {
             EventCenter.RemoveListener<DungeonReadyEvent>(
                 GameEventType.DungeonReady, OnDungeonReady);
             EventCenter.RemoveListener<RewardClaimedEvent>(
                 GameEventType.RewardClaimed, OnRewardClaimed);
-
-            // 异常安全：确保场景切换时恢复状态
-            ResetTransitState();
         }
 
         /// <summary>

@@ -44,7 +44,7 @@ public class DamageManager : MonoBehaviour
         UpdatePlayerAttack();
         if (collision.gameObject.CompareTag("PlayerBullet"))
         {
-
+            Debug.Log("Enemy get damage" + currentPlayerAttack);
             enemy.data.TakeDamage(currentPlayerAttack);
             if (enemy.data.CurrentHP <= 0)
             {

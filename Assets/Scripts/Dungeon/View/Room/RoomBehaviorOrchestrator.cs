@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using RogueDungeon.Core.Events;
 using RogueDungeon.Dungeon.Map;
 using RogueDungeon.Dungeon.Types;
@@ -20,17 +21,51 @@ namespace RogueDungeon.Dungeon.View
         private void Awake()
         {
             ValidateViewManager();
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         private void OnEnable()
         {
             if (!ValidateViewManager()) return;
+            RegisterEvents();
+        }
 
+        private void OnDisable()
+        {
+            UnregisterEvents();
+        }
+
+        private void OnDestroy()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            UnregisterEvents();
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            Debug.Log($"[DEBUG] RoomBehaviorOrchestrator.OnSceneLoaded scene={scene.name} mode={mode}");
+            if (!ValidateViewManager()) return;
+            RegisterEvents();
+        }
+
+        private void RegisterEvents()
+        {
+            UnregisterEvents();
             EventCenter.AddListener<DungeonReadyEvent>(
                 GameEventType.DungeonReady, OnDungeonReady);
             EventCenter.AddListener<RoomEnteredEvent>(
                 GameEventType.RoomEntered, OnRoomEntered);
             EventCenter.AddListener<RoomClearedEvent>(
+                GameEventType.RoomCleared, OnRoomCleared);
+        }
+
+        private void UnregisterEvents()
+        {
+            EventCenter.RemoveListener<DungeonReadyEvent>(
+                GameEventType.DungeonReady, OnDungeonReady);
+            EventCenter.RemoveListener<RoomEnteredEvent>(
+                GameEventType.RoomEntered, OnRoomEntered);
+            EventCenter.RemoveListener<RoomClearedEvent>(
                 GameEventType.RoomCleared, OnRoomCleared);
         }
 
@@ -50,16 +85,6 @@ namespace RogueDungeon.Dungeon.View
 
             enabled = false;
             return false;
-        }
-
-        private void OnDisable()
-        {
-            EventCenter.RemoveListener<DungeonReadyEvent>(
-                GameEventType.DungeonReady, OnDungeonReady);
-            EventCenter.RemoveListener<RoomEnteredEvent>(
-                GameEventType.RoomEntered, OnRoomEntered);
-            EventCenter.RemoveListener<RoomClearedEvent>(
-                GameEventType.RoomCleared, OnRoomCleared);
         }
 
         /// <summary>
