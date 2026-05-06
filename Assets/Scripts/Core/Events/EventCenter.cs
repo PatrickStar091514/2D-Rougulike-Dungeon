@@ -44,7 +44,10 @@ namespace RogueDungeon.Core.Events
         /// </summary>
         private static void OnSceneUnloaded(Scene scene)
         {
-            _eventTable.Clear();
+            // 不在此处清空 _eventTable。
+            // 场景对象由引擎销毁，在 OnDisable -> RemoveListener 中自行清理。
+            // DontDestroyOnLoad 对象跨场景存活，通过 SceneManager.sceneLoaded 重新注册。
+            Debug.Log($"[DEBUG] EventCenter.OnSceneUnloaded: scene={scene.name}, 当前注册事件类型数={_eventTable.Count}");
         }
 
         #region 无参 API
@@ -108,6 +111,7 @@ namespace RogueDungeon.Core.Events
         {
             CheckAddListener(eventType, handler);
             _eventTable[eventType] = (CallBack<T>)_eventTable[eventType] + handler;
+            Debug.Log($"[DEBUG] EventCenter.AddListener<{typeof(T).Name}>({eventType}) handler={handler.Method.DeclaringType?.Name}.{handler.Method.Name}");
         }
 
         /// <summary>
@@ -115,6 +119,7 @@ namespace RogueDungeon.Core.Events
         /// </summary>
         public static void RemoveListener<T>(GameEventType eventType, CallBack<T> handler)
         {
+            Debug.Log($"[DEBUG] EventCenter.RemoveListener<{typeof(T).Name}>({eventType}) handler={handler.Method.DeclaringType?.Name}.{handler.Method.Name}");
             if (CheckRemoveListener(eventType, handler))
             {
                 _eventTable[eventType] = (CallBack<T>)_eventTable[eventType] - handler;
@@ -127,11 +132,17 @@ namespace RogueDungeon.Core.Events
         /// </summary>
         public static void Broadcast<T>(GameEventType eventType, T arg)
         {
-            if (!_eventTable.TryGetValue(eventType, out var d)) return;
+            if (!_eventTable.TryGetValue(eventType, out var d))
+            {
+                Debug.Log($"[DEBUG] EventCenter.Broadcast<{typeof(T).Name}>({eventType}): 无监听者");
+                return;
+            }
 
             if (d is CallBack<T> callback)
             {
-                foreach (var del in callback.GetInvocationList())
+                var invocations = callback.GetInvocationList();
+                Debug.Log($"[DEBUG] EventCenter.Broadcast<{typeof(T).Name}>({eventType}): 监听者数={invocations.Length}");
+                foreach (var del in invocations)
                 {
                     try
                     {

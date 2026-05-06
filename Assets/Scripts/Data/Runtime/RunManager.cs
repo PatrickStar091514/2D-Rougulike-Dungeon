@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using RogueDungeon.Core;
 using RogueDungeon.Core.Events;
 using RogueDungeon.Data.Save;
@@ -14,6 +15,9 @@ namespace RogueDungeon.Data.Runtime
         public static RunManager Instance { get; private set; }
 
         private const string RunSaveKey = "run_checkpoint"; // 续关存档 key
+
+        [SerializeField] private GameObject PauseMenu; // 暂停菜单对象引用
+
         [SerializeField] private int _randomSeed; // 可配置的随机种子，0 表示使用随机生成的种子
 
         [SerializeField] private RunState _currentRun; // 当前 Run 状态（仅 Run 进行中有效）
@@ -38,15 +42,55 @@ namespace RogueDungeon.Data.Runtime
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape) && CurrentRun != null)
+            {
+                bool isPaused = PauseMenu.activeSelf;
+                PauseMenu.SetActive(!isPaused);
+                Time.timeScale = isPaused ? 1 : 0; // 切换时间流动状态
+            }
         }
 
         private void OnEnable()
         {
-            EventCenter.AddListener<GameStateChangedEvent>(
-                Core.Events.GameEventType.GameStateChanged, OnGameStateChanged);
+            Debug.Log($"[DEBUG] RunManager.OnEnable");
+            RegisterEvents();
         }
 
         private void OnDisable()
+        {
+            Debug.Log($"[DEBUG] RunManager.OnDisable");
+            UnregisterEvents();
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+                Instance = null;
+
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            UnregisterEvents();
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            Debug.Log($"[DEBUG] RunManager.OnSceneLoaded scene={scene.name} mode={mode}");
+            RegisterEvents();
+        }
+
+        private void RegisterEvents()
+        {
+            UnregisterEvents();
+            EventCenter.AddListener<GameStateChangedEvent>(
+                Core.Events.GameEventType.GameStateChanged, OnGameStateChanged);
+            Debug.Log($"[DEBUG] RunManager.RegisterEvents 完成");
+        }
+
+        private void UnregisterEvents()
         {
             EventCenter.RemoveListener<GameStateChangedEvent>(
                 Core.Events.GameEventType.GameStateChanged, OnGameStateChanged);
@@ -57,6 +101,7 @@ namespace RogueDungeon.Data.Runtime
         /// </summary>
         private void OnGameStateChanged(GameStateChangedEvent evt)
         {
+            Debug.Log($"[DEBUG] RunManager.OnGameStateChanged: From={evt.FromState} To={evt.ToState}");
             switch (evt.ToState)
             {
                 case GameState.RunInit:
@@ -89,7 +134,7 @@ namespace RogueDungeon.Data.Runtime
                 _currentRun = new RunState
                 {
                     RunId = System.Guid.NewGuid().ToString("N"),
-                    Seed = _randomSeed != 0 ? _randomSeed : Random.Range(int.MinValue, int.MaxValue)
+                    Seed = GameManager.Instance.Seed != 0 ? GameManager.Instance.Seed : Random.Range(int.MinValue, int.MaxValue)
                 };
                 _randomSeed = _currentRun.Seed; // 同步 Inspector 显示的种子值
                 Debug.Log($"[RunManager] Run 已创建: {_currentRun.RunId}, Seed: {_currentRun.Seed}");

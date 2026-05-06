@@ -1,3 +1,4 @@
+using RogueDungeon.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -21,13 +22,17 @@ public class UIManager : MonoBehaviour
     // 开始按钮调用：进游戏
     public void StartGame()
     {
-        SceneManager.LoadScene(1);
+        GameManager.Instance.StartNewGame();
     }
 
     // 退出游戏按钮调用
     public void ExitGame()
     {
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+        #else
         Application.Quit();
+        #endif
     }
 
     // 按ESC弹出暂停

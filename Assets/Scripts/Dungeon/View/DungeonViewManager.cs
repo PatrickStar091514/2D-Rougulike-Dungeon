@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using RogueDungeon.Core.Events;
 using RogueDungeon.Core.Pool;
 using RogueDungeon.Dungeon.Types;
@@ -50,18 +51,43 @@ namespace RogueDungeon.Dungeon.View
         private void Awake()
         {
             EnsureFloorRoots();
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         private void OnEnable()
         {
             ApplyCellWorldSize();
+            RegisterEvents();
+        }
+
+        private void OnDisable()
+        {
+            UnregisterEvents();
+        }
+
+        private void OnDestroy()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            UnregisterEvents();
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            Debug.Log($"[DEBUG] DungeonViewManager.OnSceneLoaded scene={scene.name} mode={mode}");
+            RegisterEvents();
+        }
+
+        private void RegisterEvents()
+        {
+            UnregisterEvents();
             EventCenter.AddListener<DungeonGeneratedEvent>(
                 GameEventType.DungeonGenerated, OnDungeonGenerated);
             EventCenter.AddListener<RoomEnteredEvent>(
                 GameEventType.RoomEntered, OnRoomEntered);
+            Debug.Log($"[DEBUG] DungeonViewManager.RegisterEvents: 已注册 DungeonGenerated + RoomEntered 监听");
         }
 
-        private void OnDisable()
+        private void UnregisterEvents()
         {
             EventCenter.RemoveListener<DungeonGeneratedEvent>(
                 GameEventType.DungeonGenerated, OnDungeonGenerated);
@@ -265,6 +291,7 @@ namespace RogueDungeon.Dungeon.View
         /// </summary>
         private void OnDungeonGenerated(DungeonGeneratedEvent evt)
         {
+            Debug.Log($"[DEBUG] DungeonViewManager.OnDungeonGenerated 收到, Map={evt.Map?.StartRoomId}, RoomCount={evt.Map?.AllRooms?.Count}");
             var map = evt.Map;
             if (map == null || map.AllRooms == null || map.AllRooms.Count == 0)
             {
@@ -313,6 +340,7 @@ namespace RogueDungeon.Dungeon.View
 
             // 广播 DungeonReady
             _debugRoomViewCount = _roomViews.Count;
+            Debug.Log($"[DEBUG] DungeonViewManager: 广播 DungeonReady, RoomViewCount={_roomViews.Count}");
             EventCenter.Broadcast(GameEventType.DungeonReady, new DungeonReadyEvent());
         }
 

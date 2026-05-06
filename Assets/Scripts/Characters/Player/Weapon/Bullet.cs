@@ -17,16 +17,16 @@ public class Bullet : MonoBehaviour
 
     private void OnEnable()
     {
-        Invoke(nameof(ReturnToPool), lifetime); // ÖØÐÂ¼¤»îÊ±ÖØÖÃÉúÃüÖÜÆÚ
+        Invoke(nameof(ReturnToPool), lifetime); // ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     }
 
     private void OnDisable()
     {
-        CancelInvoke(nameof(ReturnToPool)); // È¡ÏûÎ´Ö´ÐÐµÄ»ØÊÕµ÷ÓÃ
+        CancelInvoke(nameof(ReturnToPool)); // È¡ï¿½ï¿½Î´Ö´ï¿½ÐµÄ»ï¿½ï¿½Õµï¿½ï¿½ï¿½
 
     }
 
-    private void ReturnToPool() // »ØÊÕ×Óµ¯µ½³Ø
+    private void ReturnToPool() // ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½
     {
         BulletPoolManager.Instance.ReturnBulletToPool(gameObject, poolTag);
     }
@@ -34,9 +34,10 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Platform") || collision.CompareTag("Enemy"))
+        if (collision.CompareTag("Wall") || collision.CompareTag("Enemy"))
         {
-            ReturnToPool(); // Åö×²ºó»ØÊÕ£¬¶ø·ÇÏú»Ù
+            Debug.Log("Return to Pool");
+            ReturnToPool(); // ï¿½ï¿½×²ï¿½ï¿½ï¿½ï¿½Õ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         }
     }
 }

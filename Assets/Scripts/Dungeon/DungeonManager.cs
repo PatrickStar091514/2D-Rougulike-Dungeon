@@ -119,6 +119,7 @@ namespace RogueDungeon.Dungeon
         /// </summary>
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            Debug.Log($"[DEBUG] DungeonManager.OnSceneLoaded scene={scene.name} mode={mode}");
             RegisterEvents();
         }
 
@@ -129,6 +130,7 @@ namespace RogueDungeon.Dungeon
             EventCenter.AddListener<RoomClearedEvent>(GameEventType.RoomCleared, OnRoomCleared);
             EventCenter.AddListener<DungeonReadyEvent>(GameEventType.DungeonReady, OnDungeonReady);
             EventCenter.AddListener<FloorCompletedEvent>(GameEventType.FloorCompleted, OnFloorCompleted);
+            Debug.Log($"[DEBUG] DungeonManager.RegisterEvents 完成");
         }
 
         private void UnregisterEvents()
@@ -144,6 +146,7 @@ namespace RogueDungeon.Dungeon
         /// </summary>
         private void OnRunReady(RunReadyEvent evt)
         {
+            Debug.Log($"[DEBUG] DungeonManager.OnRunReady 收到, FloorIndex={evt.Run?.FloorIndex}");
             var run = evt.Run;
             int floorIndex = run.FloorIndex;
 
@@ -178,6 +181,7 @@ namespace RogueDungeon.Dungeon
             NextFloorReady = false;
             SyncDebugFields();
 
+            Debug.Log($"[DEBUG] DungeonManager: 广播 DungeonGenerated, StartRoomId={map.StartRoomId}, RoomCount={map.AllRooms?.Count}");
             EventCenter.Broadcast(GameEventType.DungeonGenerated, new DungeonGeneratedEvent { Map = map });
         }
 
