@@ -43,6 +43,8 @@ public class Enemy : MonoBehaviour, IPoolable
     public EnemyType enemyType;
     public EnemyData data;
 
+    public int scoreValue = 0;
+
     private void Awake()
     {
         data = new EnemyData();

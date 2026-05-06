@@ -1,6 +1,5 @@
 using RogueDungeon.Core;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
@@ -11,7 +10,6 @@ public class UIManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -33,20 +31,5 @@ public class UIManager : MonoBehaviour
         #else
         Application.Quit();
         #endif
-    }
-
-    // 按ESC弹出暂停
-    void LateUpdate()
-    {
-        // 只在游戏场景生效
-        if (SceneManager.GetActiveScene().buildIndex == 1)
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                // 叠加加载暂停场景，不卸载游戏
-                SceneManager.LoadScene(2, LoadSceneMode.Additive);
-                Time.timeScale = 0;
-            }
-        }
     }
 }

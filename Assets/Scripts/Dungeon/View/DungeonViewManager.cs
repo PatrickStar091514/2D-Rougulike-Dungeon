@@ -51,7 +51,6 @@ namespace RogueDungeon.Dungeon.View
         private void Awake()
         {
             EnsureFloorRoots();
-            SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         private void OnEnable()
@@ -67,14 +66,7 @@ namespace RogueDungeon.Dungeon.View
 
         private void OnDestroy()
         {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
             UnregisterEvents();
-        }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            Debug.Log($"[DEBUG] DungeonViewManager.OnSceneLoaded scene={scene.name} mode={mode}");
-            RegisterEvents();
         }
 
         private void RegisterEvents()
@@ -246,7 +238,7 @@ namespace RogueDungeon.Dungeon.View
                 if (!string.IsNullOrEmpty(templateId))
                 {
                     var poolKey = $"Room_{templateId}";
-                    ObjectPool.Instance.Release(poolKey, view.gameObject);
+                    ObjectPool.Instance?.Release(poolKey, view.gameObject);
                 }
                 else
                 {
@@ -358,7 +350,8 @@ namespace RogueDungeon.Dungeon.View
             var worldPos = CalculateRoomRootPosition(room);
             var poolKey = $"Room_{room.Template.TemplateId}";
 
-            var go = ObjectPool.Instance.Get(poolKey, room.Template.Prefab);
+            var go = ObjectPool.Instance?.Get(poolKey, room.Template.Prefab);
+            if (go == null) return null;
             go.transform.SetPositionAndRotation(worldPos, Quaternion.identity);
             go.transform.SetParent(parent);
             go.name = $"Room_{room.Id}";
@@ -388,7 +381,7 @@ namespace RogueDungeon.Dungeon.View
                 if (!string.IsNullOrEmpty(templateId))
                 {
                     var poolKey = $"Room_{templateId}";
-                    ObjectPool.Instance.Release(poolKey, view.gameObject);
+                    ObjectPool.Instance?.Release(poolKey, view.gameObject);
                 }
             }
 

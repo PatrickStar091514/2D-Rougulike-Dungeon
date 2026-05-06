@@ -27,7 +27,6 @@ namespace RogueDungeon.Core.Pool
             }
 
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
 
         /// <summary>

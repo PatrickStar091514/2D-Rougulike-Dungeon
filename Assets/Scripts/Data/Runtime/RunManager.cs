@@ -41,8 +41,6 @@ namespace RogueDungeon.Data.Runtime
             }
 
             Instance = this;
-            DontDestroyOnLoad(gameObject);
-            SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         private void Update()
@@ -72,14 +70,7 @@ namespace RogueDungeon.Data.Runtime
             if (Instance == this)
                 Instance = null;
 
-            SceneManager.sceneLoaded -= OnSceneLoaded;
             UnregisterEvents();
-        }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            Debug.Log($"[DEBUG] RunManager.OnSceneLoaded scene={scene.name} mode={mode}");
-            RegisterEvents();
         }
 
         private void RegisterEvents()
@@ -87,6 +78,10 @@ namespace RogueDungeon.Data.Runtime
             UnregisterEvents();
             EventCenter.AddListener<GameStateChangedEvent>(
                 Core.Events.GameEventType.GameStateChanged, OnGameStateChanged);
+            EventCenter.AddListener(
+                GameEventType.PlayerDied, OnPlayerDied);
+            EventCenter.AddListener<RunEndedEvent>(
+                GameEventType.RunEnded, OnRunEnded);
             Debug.Log($"[DEBUG] RunManager.RegisterEvents 完成");
         }
 
@@ -94,7 +89,23 @@ namespace RogueDungeon.Data.Runtime
         {
             EventCenter.RemoveListener<GameStateChangedEvent>(
                 Core.Events.GameEventType.GameStateChanged, OnGameStateChanged);
+            EventCenter.RemoveListener(
+                GameEventType.PlayerDied, OnPlayerDied);
+            EventCenter.RemoveListener<RunEndedEvent>(
+                GameEventType.RunEnded, OnRunEnded);
         }
+
+        private void OnPlayerDied()
+        {
+            // 玩家死亡时直接结束当前 Run
+            EventCenter.Broadcast(GameEventType.RunEnded, new RunEndedEvent { IsVictory = false });
+        }
+
+    private void OnRunEnded(RunEndedEvent evt)
+    {
+        // 处理 Run 结束事件，通过 GameManager 状态机统一管理状态切换
+        GameManager.Instance.ChangeState(GameState.RunEnd);
+    }
 
         /// <summary>
         /// 响应游戏状态切换，管理 RunState 生命周期
@@ -127,6 +138,7 @@ namespace RogueDungeon.Data.Runtime
             if (HasCheckpoint)
             {
                 _currentRun = SaveManager.LoadRaw<RunState>(RunSaveKey);
+                _randomSeed = _currentRun.Seed;
                 Debug.Log($"[RunManager] Run 已恢复: {_currentRun.RunId}, Floor: {_currentRun.FloorIndex}");
             }
             else
@@ -158,17 +170,13 @@ namespace RogueDungeon.Data.Runtime
         /// </summary>
         private void ArchiveRun()
         {
-            if (_currentRun == null)
-            {
-                Debug.LogWarning("[RunManager] ArchiveRun 时 CurrentRun 为 null");
-                return;
-            }
-
-            // 删除续关存档（Run 已正常结束）
-            string runId = _currentRun.RunId;
             SaveManager.DeleteSave(RunSaveKey);
-            _currentRun = null;
-            Debug.Log($"[RunManager] Run 已归档并释放: {runId}");
+
+            if (_currentRun != null)
+            {
+                Debug.Log($"[RunManager] Run 已归档并释放: {_currentRun.RunId}");
+                _currentRun = null;
+            }
         }
 
         /// <summary>

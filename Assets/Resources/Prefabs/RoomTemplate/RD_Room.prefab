@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8996089660307565851}
   m_Layer: 0
-  m_Name: DoorSIot1-1E
+  m_Name: DoorSlot1-1E
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -701,7 +701,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3328426032216898957}
   m_Layer: 0
-  m_Name: DoorSIot1-1S
+  m_Name: DoorSlot1-1S
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6018,7 +6018,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3813275624888025473}
   m_Layer: 0
-  m_Name: DoorSIot1-1W
+  m_Name: DoorSlot1-1W
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6303,7 +6303,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4681838332206173434}
   m_Layer: 0
-  m_Name: DoorSIot00W
+  m_Name: DoorSlot00W
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6468,7 +6468,7 @@ GameObject:
   - component: {fileID: 8853011122819696796}
   - component: {fileID: 8597657998017677800}
   m_Layer: 0
-  m_Name: DoorTriger
+  m_Name: DoorTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6544,7 +6544,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8469036883363137527}
   m_Layer: 0
-  m_Name: DoorSIot00S
+  m_Name: DoorSlot00S
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7060,7 +7060,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2154041330529352436}
   m_Layer: 0
-  m_Name: DoorSIot00N
+  m_Name: DoorSlot00N
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9530,7 +9530,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5405263798067420451}
   m_Layer: 0
-  m_Name: DoorSIot10E
+  m_Name: DoorSlot10E
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9640,7 +9640,7 @@ GameObject:
   m_Component:
   - component: {fileID: 661460125407081234}
   m_Layer: 0
-  m_Name: DoorSIot10N
+  m_Name: DoorSlot10N
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

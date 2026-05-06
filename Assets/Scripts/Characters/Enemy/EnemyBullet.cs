@@ -26,7 +26,7 @@ public class EnemyBullet : MonoBehaviour
     }
     private void ReturnToPool() // �����ӵ�����
     {
-        BulletPoolManager.Instance.ReturnBulletToPool(gameObject, poolTag);
+        BulletPoolManager.Instance?.ReturnBulletToPool(gameObject, poolTag);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

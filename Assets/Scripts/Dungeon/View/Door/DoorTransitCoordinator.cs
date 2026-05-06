@@ -32,7 +32,6 @@ namespace RogueDungeon.Dungeon.View
 
         private void Awake()
         {
-            SceneManager.sceneLoaded += OnSceneLoaded;
             if (_viewManager == null)
             {
                 Debug.LogError("[DoorTransitCoordinator] viewManager 未赋值，组件已禁用");
@@ -53,14 +52,7 @@ namespace RogueDungeon.Dungeon.View
 
         private void OnDestroy()
         {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
             UnregisterEvents();
-        }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            Debug.Log($"[DEBUG] DoorTransitCoordinator.OnSceneLoaded scene={scene.name} mode={mode}");
-            RegisterEvents();
         }
 
         private void RegisterEvents()

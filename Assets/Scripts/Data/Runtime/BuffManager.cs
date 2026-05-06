@@ -38,23 +38,13 @@ namespace RogueDungeon.Data.Runtime
             }
 
             Instance = this;
-            if (Application.isPlaying)
-                DontDestroyOnLoad(gameObject);
-
-            SceneManager.sceneLoaded += OnSceneLoaded;
             RegisterEvents();
         }
 
         private void OnDestroy()
         {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
+            
             UnregisterEvents();
-        }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            RegisterEvents();
-            TryInitFromExistingRun();
         }
 
         private void RegisterEvents()
@@ -62,6 +52,7 @@ namespace RogueDungeon.Data.Runtime
             UnregisterEvents(); // 防止 sceneLoaded 导致的重复订阅
             EventCenter.AddListener<GameStateChangedEvent>(GameEventType.GameStateChanged, OnGameStateChanged);
             EventCenter.AddListener<RoomClearedEvent>(GameEventType.RoomCleared, OnRoomCleared);
+            EventCenter.AddListener<RunReadyEvent>(GameEventType.RunReady, OnRunReady);
         }
 
         private void OnEnable()
@@ -73,6 +64,12 @@ namespace RogueDungeon.Data.Runtime
         {
             EventCenter.RemoveListener<GameStateChangedEvent>(GameEventType.GameStateChanged, OnGameStateChanged);
             EventCenter.RemoveListener<RoomClearedEvent>(GameEventType.RoomCleared, OnRoomCleared);
+            EventCenter.RemoveListener<RunReadyEvent>(GameEventType.RunReady, OnRunReady);
+        }
+
+        private void OnRunReady(RunReadyEvent evt)
+        {
+            TryInitFromExistingRun();
         }
 
         private void Update()

@@ -26,6 +26,7 @@ public class StartPanel : MonoBehaviour
     {
         if (GameManager.Instance != null)
         {
+            GameManager.Instance.Seed = int.Parse(seedInput.text == "" || seedInput.text == "-" ? "0" : seedInput.text);
             GameManager.Instance.StartNewGame();
             this.gameObject.SetActive(false);
         }
@@ -55,6 +56,6 @@ public class StartPanel : MonoBehaviour
 
     private void SetSeed(string seedString)
     {
-        GameManager.Instance.Seed = int.Parse(seedString);
+        GameManager.Instance.Seed = int.Parse(seedString == "" || seedString == "-" ? "0" : seedString);
     }
 }

@@ -55,7 +55,12 @@ public class DamageManager : MonoBehaviour
                     RoomId = "",
                     DropSeed = UnityEngine.Random.Range(0, int.MaxValue)
                 });
-                ObjectPool.Instance.Release(EnemyRegisterManager.EnemyPoolKey, gameObject);
+                EventCenter.Broadcast(GameEventType.GetScore, new GetScoreEvent
+                {
+                    ScoreDelta = enemy.scoreValue,
+                    SourceType = GetScoreEvent.ScoreSourceType.EnemyKill
+                });
+                ObjectPool.Instance?.Release(EnemyRegisterManager.EnemyPoolKey, gameObject);
             }
         }
     }

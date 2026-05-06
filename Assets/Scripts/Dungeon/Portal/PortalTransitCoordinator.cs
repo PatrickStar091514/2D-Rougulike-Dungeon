@@ -67,6 +67,15 @@ namespace RogueDungeon.Dungeon.Portal
                 yield break;
             }
 
+            // 最终层通关：SwitchToFloor 已广播 RunEnded，跳过后续楼层切换流程
+            if (RunManager.Instance?.CurrentRun == null)
+            {
+                if (player != null) player.SetActive(true);
+                if (portal != null) portal.Deactivate();
+                _inTransit = false;
+                yield break;
+            }
+
             // 5. 注册新层房间到 _roomViews + 更新 _currentMap
             if (viewManager != null)
             {

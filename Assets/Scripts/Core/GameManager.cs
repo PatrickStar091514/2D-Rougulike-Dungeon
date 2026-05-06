@@ -154,16 +154,35 @@ namespace RogueDungeon.Core
             Debug.Log($"[DEBUG] GameManager.StartNewGame: 加载场景1, CurrentState={CurrentState}");
             SceneManager.LoadScene(1);
             Debug.Log($"[DEBUG] GameManager.StartNewGame: LoadScene 返回, 启动协程, CurrentState={CurrentState}");
-            StartCoroutine(StartNewGameRoutine());
+            StartCoroutine(StartNewRunRoutine());
         }
 
-        private System.Collections.IEnumerator StartNewGameRoutine()
+        /// <summary>
+        /// 从 SorcePanel 调用，返回 Hub 场景。
+        /// </summary>
+        public void ResetGame()
         {
-            Debug.Log($"[DEBUG] GameManager.StartNewGameRoutine: 开始等待一帧, CurrentState={CurrentState}");
+            Debug.Log($"[DEBUG] GameManager.ReturnToHub: 加载场景0, CurrentState={CurrentState}");
+            SceneManager.LoadScene(0);
+            Debug.Log($"[DEBUG] GameManager.ReturnToHub: LoadScene 返回, 启动协程, CurrentState={CurrentState}");
+            StartCoroutine(ResetGameRoutine());
+        }
+
+        private System.Collections.IEnumerator StartNewRunRoutine()
+        {
+            Debug.Log($"[DEBUG] GameManager.StartNewRunRoutine: 开始等待一帧, CurrentState={CurrentState}");
             yield return null;
-            Debug.Log($"[DEBUG] GameManager.StartNewGameRoutine: 等待结束, CurrentState={CurrentState}, 开始推进状态");
+            Debug.Log($"[DEBUG] GameManager.StartNewRunRoutine: 等待结束, CurrentState={CurrentState}, 开始推进状态");
             ChangeState(GameState.Hub);
             ChangeState(GameState.RunInit);
+        }
+
+        private System.Collections.IEnumerator ResetGameRoutine()
+        {
+            Debug.Log($"[DEBUG] GameManager.ResetGameRoutine: 开始等待一帧, CurrentState={CurrentState}");
+            yield return null;
+            Debug.Log($"[DEBUG] GameManager.ResetGameRoutine: 等待结束, CurrentState={CurrentState}, 开始推进状态");
+            ChangeState(GameState.Hub);
         }
 
         /// <summary>
