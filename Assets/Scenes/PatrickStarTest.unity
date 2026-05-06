@@ -905,6 +905,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   floorConfigs:
   - {fileID: 11400000, guid: 91f6210aea2d1aa4691530feb203c772, type: 2}
+  - {fileID: 11400000, guid: afc7781413e3f54438b516d25d70079b, type: 2}
+  - {fileID: 11400000, guid: 2847e9a2ac423ce429271cd308ccab2b, type: 2}
   _debugActiveSlot: 0
   _debugCurrentRoomId: 
   _debugRoomCount: 0
