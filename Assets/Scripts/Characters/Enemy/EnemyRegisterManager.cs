@@ -58,19 +58,14 @@ public class EnemyRegisterManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
-        SceneManager.sceneLoaded += OnSceneLoaded;
         RegisterEvents();
     }
 
     private void OnDestroy()
     {
         if (Instance == this) Instance = null;
-        SceneManager.sceneLoaded -= OnSceneLoaded;
         UnregisterEvents();
     }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => RegisterEvents();
 
     private void RegisterEvents()
     {

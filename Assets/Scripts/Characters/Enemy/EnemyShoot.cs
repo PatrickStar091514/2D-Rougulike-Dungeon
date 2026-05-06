@@ -86,7 +86,7 @@ public class EnemyShoot : MonoBehaviour
     // step 3
     void SpawnBullet(Vector2 direction)
     {
-        GameObject bullet = BulletPoolManager.Instance.GetBulletFromPool(
+        GameObject bullet = BulletPoolManager.Instance?.GetBulletFromPool(
             "EnemyBullet",
             rigidbody.position,
             Quaternion.identity

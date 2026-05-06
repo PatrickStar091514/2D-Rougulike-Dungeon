@@ -87,9 +87,6 @@ namespace RogueDungeon.Dungeon
             if (Instance == this)
                 Instance = null;
 
-            if (_initialized)
-                SceneManager.sceneLoaded -= OnSceneLoaded;
-
             UnregisterEvents();
         }
 
@@ -104,23 +101,11 @@ namespace RogueDungeon.Dungeon
             }
 
             Instance = this;
-            if (Application.isPlaying)
-                DontDestroyOnLoad(gameObject);
 
             if (floorConfigs == null || floorConfigs.Length == 0)
                 Debug.LogError("[DungeonManager] floorConfigs 未配置或为空，请在 Inspector 中赋值");
 
-            SceneManager.sceneLoaded += OnSceneLoaded;
             _initialized = true;
-        }
-
-        /// <summary>
-        /// 场景加载后重新注册事件监听（解决 DontDestroyOnLoad + EventCenter.Clear 冲突）
-        /// </summary>
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            Debug.Log($"[DEBUG] DungeonManager.OnSceneLoaded scene={scene.name} mode={mode}");
-            RegisterEvents();
         }
 
         private void RegisterEvents()
@@ -214,6 +199,12 @@ namespace RogueDungeon.Dungeon
         /// <param name="floorIndex">目标楼层索引</param>
         public void SwitchToFloor(int floorIndex)
         {
+            if (floorIndex >= TotalFloors)
+            {
+                EventCenter.Broadcast(GameEventType.RunEnded, new RunEndedEvent { IsVictory = true });
+                return;
+            }
+
             int targetSlot = floorIndex % 2;
             var targetMap = _maps[targetSlot];
 

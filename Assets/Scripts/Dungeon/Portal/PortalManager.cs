@@ -30,19 +30,14 @@ namespace RogueDungeon.Dungeon.Portal
             }
 
             Instance = this;
-            DontDestroyOnLoad(gameObject);
-            SceneManager.sceneLoaded += OnSceneLoaded;
             RegisterEvents();
         }
 
         private void OnDestroy()
         {
             if (Instance == this) Instance = null;
-            SceneManager.sceneLoaded -= OnSceneLoaded;
             UnregisterEvents();
         }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => RegisterEvents();
 
         private void RegisterEvents()
         {
@@ -68,12 +63,14 @@ namespace RogueDungeon.Dungeon.Portal
         private void OnFloorBossDefeated(FloorBossDefeatedEvent evt)
         {
             var dm = DungeonManager.Instance;
-            if (dm == null || dm.TotalFloors <= 1) return;
+            if (dm == null || dm.TotalFloors <= 0) return;
 
             int nextFloor = evt.FloorIndex + 1;
-            if (nextFloor >= dm.TotalFloors) return;
-
             ActivatePortalInRoom(evt.RoomId, nextFloor);
+
+            // 最终层无需预加载，直接设为 Ready
+            if (nextFloor >= dm.TotalFloors && _activePortal != null)
+                _activePortal.SetReady();
         }
 
         /// <summary>

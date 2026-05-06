@@ -6,8 +6,8 @@ using UnityEngine;
 namespace RogueDungeon.Dungeon.View
 {
     /// <summary>
-    /// Boss 房间行为。OnEnter 锁门并记录 Boss 战开始日志，
-    /// OnClear 解锁房门、广播 FloorBossDefeated 事件、触发奖励阶段。
+    /// Boss 房间行为。OnEnter 锁门，OnClear 触发奖励阶段。
+    /// 门解锁和传送门激活延迟到奖励拾取后（RewardSpawner.OnDropPicked）。
     /// </summary>
     public class BossRoomBehavior : IRoomBehavior
     {
@@ -28,22 +28,6 @@ namespace RogueDungeon.Dungeon.View
         /// <inheritdoc/>
         public void OnClear(RoomView room)
         {
-
-            // 解锁 Boss 房门，让玩家自由进出（清理剩余房间或使用 Portal）
-            foreach (var door in room.ActiveDoors)
-            {
-                if (door.State == DoorState.Locked)
-                    door.Unlock();
-            }
-
-            // 通知 Portal 系统生成传送门
-            var run = RunManager.Instance?.CurrentRun;
-            EventCenter.Broadcast(GameEventType.FloorBossDefeated, new FloorBossDefeatedEvent
-            {
-                RoomId = room.RoomId,
-                FloorIndex = run?.FloorIndex ?? 0
-            });
-
             var gameManager = GameManager.Instance;
             if (gameManager == null) return;
 

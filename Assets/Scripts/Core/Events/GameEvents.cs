@@ -129,4 +129,18 @@ namespace RogueDungeon.Core.Events
         public int FromFloorIndex; // 离开的楼层索引
         public int ToFloorIndex;   // 进入的楼层索引
     }
+
+    public struct GetScoreEvent
+    {
+        public enum ScoreSourceType
+        {
+            EnemyKill,
+            RoomClear,
+            FloorComplete,
+            BuffClaim,
+            PlayerDeath
+        }
+        public int ScoreDelta;    // 分数变化量（正值）
+        public ScoreSourceType SourceType; // 分数来源类型
+    }
 }

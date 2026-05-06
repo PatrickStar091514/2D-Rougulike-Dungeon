@@ -21,7 +21,6 @@ namespace RogueDungeon.Dungeon.View
         private void Awake()
         {
             ValidateViewManager();
-            SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         private void OnEnable()
@@ -37,15 +36,7 @@ namespace RogueDungeon.Dungeon.View
 
         private void OnDestroy()
         {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
             UnregisterEvents();
-        }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            Debug.Log($"[DEBUG] RoomBehaviorOrchestrator.OnSceneLoaded scene={scene.name} mode={mode}");
-            if (!ValidateViewManager()) return;
-            RegisterEvents();
         }
 
         private void RegisterEvents()

@@ -75,8 +75,6 @@ namespace RogueDungeon.Dungeon.Reward
             }
 
             Instance = this;
-            DontDestroyOnLoad(gameObject);
-            SceneManager.sceneLoaded += OnSceneLoaded;
             RegisterEvents();
         }
 
@@ -85,13 +83,7 @@ namespace RogueDungeon.Dungeon.Reward
             if (Instance == this)
                 Instance = null;
 
-            SceneManager.sceneLoaded -= OnSceneLoaded;
             UnregisterEvents();
-        }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            RegisterEvents();
         }
 
         private void RegisterEvents()
@@ -130,11 +122,7 @@ namespace RogueDungeon.Dungeon.Reward
 
             if (room.Type == RoomType.Boss)
             {
-                int floorIndex = RunManager.Instance?.CurrentRun?.FloorIndex ?? 0;
-                int totalFloors = DungeonManager.Instance?.TotalFloors ?? 1;
-                bool isLastFloor = floorIndex >= totalFloors - 1;
-                var state = isLastFloor ? CompletionState.ToRunEnd : CompletionState.ToBossReward;
-                EnsureRewardWave(room, 1, RewardSource.Boss, state, true);
+                EnsureRewardWave(room, 1, RewardSource.Boss, CompletionState.ToBossReward, true);
             }
         }
 
@@ -310,9 +298,10 @@ namespace RogueDungeon.Dungeon.Reward
             if (run != null)
                 run.PendingReward = null;
 
+            RoomInstance room = null;
             if (DungeonManager.Instance?.CurrentMap != null && !string.IsNullOrEmpty(_debugActiveRoomId))
             {
-                var room = DungeonManager.Instance.CurrentMap.GetRoom(_debugActiveRoomId);
+                room = DungeonManager.Instance.CurrentMap.GetRoom(_debugActiveRoomId);
                 if (room != null)
                 {
                     room.Cleared = true;
@@ -326,6 +315,16 @@ namespace RogueDungeon.Dungeon.Reward
                 Snapshot = rewardConfig?.ToSnapshot(),
                 RoomId = _debugActiveRoomId
             });
+
+            if (room != null && room.Type == RoomType.Boss)
+            {
+                var runForBoss = RunManager.Instance?.CurrentRun;
+                EventCenter.Broadcast(GameEventType.FloorBossDefeated, new FloorBossDefeatedEvent
+                {
+                    RoomId = room.Id,
+                    FloorIndex = runForBoss?.FloorIndex ?? 0
+                });
+            }
 
             for (int i = 0; i < _activeDrops.Count; i++)
             {

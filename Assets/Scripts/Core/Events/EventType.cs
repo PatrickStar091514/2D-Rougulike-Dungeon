@@ -21,6 +21,7 @@ namespace RogueDungeon.Core.Events
         BuffStackChanged = 13, // Buff 叠加层数变化
         RewardClaimed = 14,    // 奖励已领取
         FloorBossDefeated = 15, // Boss 被击杀（Portal 生成信号）
-        FloorCompleted = 16     // 楼层完成（玩家进入 Portal）
+        FloorCompleted = 16,     // 楼层完成（玩家进入 Portal）
+        GetScore = 17           // 获取分数（玩家得分变化）
     }
 }
