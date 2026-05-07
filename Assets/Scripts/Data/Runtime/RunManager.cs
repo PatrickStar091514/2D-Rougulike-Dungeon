@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using RogueDungeon.Core;
 using RogueDungeon.Core.Events;
 using RogueDungeon.Data.Save;
@@ -15,8 +14,6 @@ namespace RogueDungeon.Data.Runtime
         public static RunManager Instance { get; private set; }
 
         private const string RunSaveKey = "run_checkpoint"; // 续关存档 key
-
-        [SerializeField] private GameObject PauseMenu; // 暂停菜单对象引用
 
         [SerializeField] private int _randomSeed; // 可配置的随机种子，0 表示使用随机生成的种子
 
@@ -41,16 +38,6 @@ namespace RogueDungeon.Data.Runtime
             }
 
             Instance = this;
-        }
-
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.Escape) && CurrentRun != null)
-            {
-                bool isPaused = PauseMenu.activeSelf;
-                PauseMenu.SetActive(!isPaused);
-                Time.timeScale = isPaused ? 1 : 0; // 切换时间流动状态
-            }
         }
 
         private void OnEnable()

@@ -14,6 +14,7 @@ public class PlayerHealth : MonoBehaviour
     private int health;
 
     public int playerScore = 10;
+    [SerializeField] private AudioClip _playerHitClip; // 玩家受击音效
 
     public int Health
     {
@@ -49,6 +50,7 @@ public class PlayerHealth : MonoBehaviour
         if (Health <= 0) return; // 已经死亡，不再处理伤害
         Health -= damage;
         Health = Mathf.Max(0, Health);
+        RogueDungeon.Core.AudioManager.Instance?.PlaySFX(RogueDungeon.Core.SFXType.PlayerHit); // 播放受击音效
 
         if (Health <= 0)
         {
