@@ -346,27 +346,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7169324167578586201, guid: f9f5fdf7aae51884eb1057183daaa97e, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7169324167578586201, guid: f9f5fdf7aae51884eb1057183daaa97e, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7169324167578586201, guid: f9f5fdf7aae51884eb1057183daaa97e, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7169324167578586201, guid: f9f5fdf7aae51884eb1057183daaa97e, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7169324167578586201, guid: f9f5fdf7aae51884eb1057183daaa97e, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 1920
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7169324167578586201, guid: f9f5fdf7aae51884eb1057183daaa97e, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 1080
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7169324167578586201, guid: f9f5fdf7aae51884eb1057183daaa97e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -398,7 +398,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7169324167578586201, guid: f9f5fdf7aae51884eb1057183daaa97e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7169324167578586201, guid: f9f5fdf7aae51884eb1057183daaa97e, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -1030,7 +1030,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efcbec30ae7b59b47b36c62063a582bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PauseMenu: {fileID: 1934027543}
   _randomSeed: 0
   _currentRun:
     RunId: 
@@ -1364,27 +1363,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2338717680149271325, guid: 28951eec3587b8a4fbfa6fe7129d41c8, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2338717680149271325, guid: 28951eec3587b8a4fbfa6fe7129d41c8, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2338717680149271325, guid: 28951eec3587b8a4fbfa6fe7129d41c8, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2338717680149271325, guid: 28951eec3587b8a4fbfa6fe7129d41c8, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2338717680149271325, guid: 28951eec3587b8a4fbfa6fe7129d41c8, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 1920
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2338717680149271325, guid: 28951eec3587b8a4fbfa6fe7129d41c8, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 1080
+      value: -0.000030517578
       objectReference: {fileID: 0}
     - target: {fileID: 2338717680149271325, guid: 28951eec3587b8a4fbfa6fe7129d41c8, type: 3}
       propertyPath: m_LocalScale.x
@@ -1578,6 +1577,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 22700505b554747868dd5342ed79eb4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volumeSlider: {fileID: 1934027545}
+--- !u!114 &1934027545 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2699788373116488961, guid: 28951eec3587b8a4fbfa6fe7129d41c8, type: 3}
+  m_PrefabInstance: {fileID: 1934027541}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &2005882854

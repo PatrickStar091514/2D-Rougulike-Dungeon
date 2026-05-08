@@ -6,12 +6,16 @@ using System;
 
 public class PauseUI : MonoBehaviour
 {
-    // [SerializeField] private Slider volumeSlider;
+    [SerializeField] private Slider volumeSlider; // 音量滑动条
 
-    // private void Start()
-    // {
-    //     volumeSlider.onValueChanged.AddListener(SetVolume);
-    // }
+    private void Awake()
+    {
+        // 初始化音量滑动条
+        if (volumeSlider != null)
+        {
+            volumeSlider.value = GetVolume();
+        }
+    }
 
     // 返回主菜单
     public void BackToMenu()
@@ -39,5 +43,11 @@ public class PauseUI : MonoBehaviour
         // RogueDungeon.Core.AudioManager.Instance?.SetMasterVolume(Mathf.Log10(volume) * 20.0f);
 
         RogueDungeon.Core.AudioManager.Instance?.SetMasterVolume(Mathf.Pow(volume, 2));
+    }
+
+    public float GetVolume()
+    {
+        float volume = RogueDungeon.Core.AudioManager.Instance?.GetMasterVolume() ?? 1.0f;
+        return Mathf.Sqrt(volume);
     }
 }
