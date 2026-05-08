@@ -172,6 +172,10 @@ namespace RogueDungeon.Core
             ApplyVolume();
         }
 
+        public float GetMasterVolume()
+        {
+            return MasterVolume;
+        }
     }
 
     public enum SFXType
